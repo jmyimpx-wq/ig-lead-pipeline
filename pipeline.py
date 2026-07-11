@@ -284,6 +284,17 @@ def is_relevant_b2b_lead(profile):
     return any(keyword in text for keyword in config.RELEVANT_KEYWORDS)
 
 
+def is_excluded_supplier(profile):
+    """True if this looks like an exporter/manufacturer/factory/supplier -- i.e. a
+    competitor rather than a buyer. Checked against username too, since many such
+    accounts embed it directly in the handle (e.g. 'xyz_exports', 'abc_manufacturing')."""
+    text = " ".join(
+        str(profile.get(field, "") or "")
+        for field in ("username", "category", "categoryName", "biography", "bio", "fullName")
+    ).lower()
+    return any(keyword in text for keyword in config.EXCLUDE_KEYWORDS)
+
+
 # ---------- step 3: free pre-filter (saves Snov.io credits) ----------
 
 _mx_cache = {}
@@ -508,6 +519,7 @@ def main():
     candidates = []  # [{email, username, source_url}]
     skipped_non_business = 0
     skipped_irrelevant = 0
+    skipped_competitor = 0
     for profile in profiles:
         uname = profile.get("username")
         seen_usernames.add(uname) if uname else None
@@ -515,6 +527,12 @@ def main():
         # Signal 1: Instagram's own business-account flag (weak on its own).
         if not profile.get("isBusiness", False):
             skipped_non_business += 1
+            continue
+
+        # Exclude competitors: exporters/manufacturers/factories/suppliers are
+        # sellers like you, not buyers -- never leads, regardless of niche match.
+        if is_excluded_supplier(profile):
+            skipped_competitor += 1
             continue
 
         # Signal 2: real quality gate -- does this account actually match our
@@ -534,7 +552,11 @@ def main():
                     "source_url": f"https://instagram.com/{uname}" if uname else "",
                 }
             )
-    print(f"  [debug] skipped {skipped_non_business} non-business, {skipped_irrelevant} off-niche profiles")
+    print(
+        f"  [debug] skipped {skipped_non_business} non-business, "
+        f"{skipped_competitor} competitor (exporter/manufacturer), "
+        f"{skipped_irrelevant} off-niche profiles"
+    )
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
 

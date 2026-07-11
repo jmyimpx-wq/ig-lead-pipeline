@@ -78,6 +78,22 @@ DISPOSABLE_EMAIL_DOMAINS = {
 }
 
 # ---------------------------------------------------------------------------
+# Exclusion filter: you are an exporter/manufacturer yourself -- other
+# exporters, manufacturers, factories, and suppliers are competitors, not
+# buyers, and must never end up in the lead list even if their bio otherwise
+# matches the relevance keywords above (e.g. a ceramics factory's bio might
+# say "tableware manufacturer"). Checked against username, category, bio, and
+# display name. If ANY of these terms appear, the profile is excluded.
+EXCLUDE_KEYWORDS = [
+    "exporter", "exporters", "export house", "export company",
+    "manufacturer", "manufacturers", "manufacturing", "factory", "factories",
+    "producer", "production house", "oem", "odm", "oem/odm",
+    "supplier", "suppliers", "trading company", "trading co",
+    "ready to ship", "factory direct", "wholesale supplier",
+    "bulk manufacturer", "china factory", "made in china", "made in india",
+]
+
+# ---------------------------------------------------------------------------
 # SOURCE 2: Network/follower-graph expansion.
 # These are large "hub" accounts in your niches -- wholesale marketplaces,
 # trade associations, big industry hashtag campaigns. Their FOLLOWERS get

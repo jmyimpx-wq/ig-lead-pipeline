@@ -164,10 +164,10 @@ def crawl_seed_followers():
     """Pull followers of large hub accounts using apidojo/instagram-user-scraper
     with getFollowers=true. This pool refreshes on its own as new people follow
     these hubs -- it doesn't exhaust the way a fixed hashtag list does.
-    Schema confirmed: {"startUrls": [...], "getFollowers": bool, "getFollowings": bool, "maxItems": N}
-    Output shape for follower lists isn't 100% confirmed from the Store page alone --
-    this parses defensively across a few likely field names. If a first real run comes
-    back empty, open one dataset item in the Apify console and adjust the field names below."""
+    Schema confirmed via real test run: {"startUrls": [...], "getFollowers": bool,
+    "getFollowings": bool, "maxItems": N}. Output is a flat list where item 0 is the
+    seed account's own profile and the rest are followers, each with "username" directly
+    on the item (no nesting)."""
     usernames = set()
     for seed in config.SEED_ACCOUNTS:
         run_input = {
@@ -185,15 +185,9 @@ def crawl_seed_followers():
             )
             resp.raise_for_status()
             for item in resp.json():
-                # Case 1: each dataset item IS a follower record
                 uname = item.get("username")
-                if uname:
+                if uname and uname.lower() != seed.lower():  # skip the seed account itself
                     usernames.add(uname)
-                # Case 2: followers nested under the seed account's record
-                for follower in item.get("followers", []) or []:
-                    f_uname = follower.get("username") if isinstance(follower, dict) else follower
-                    if f_uname:
-                        usernames.add(f_uname)
         except requests.RequestException as e:
             print(f"Follower crawl failed for seed '{seed}': {e}")
     return usernames

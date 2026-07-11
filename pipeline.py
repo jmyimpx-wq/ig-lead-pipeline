@@ -431,9 +431,17 @@ def main():
     harvest_hashtags(profiles)  # feed tomorrow's auto-expanded hashtag pool
 
     candidates = []  # [{email, username, source_url}]
+    skipped_non_business = 0
     for profile in profiles:
         uname = profile.get("username")
         seen_usernames.add(uname) if uname else None
+
+        # Only pursue business accounts -- personal/non-business Instagram profiles
+        # get skipped even if their bio happens to contain a deliverable email.
+        if not profile.get("isBusiness", False):
+            skipped_non_business += 1
+            continue
+
         email = extract_email(profile)
         if email and prefilter(email, seen_emails):
             candidates.append(
@@ -443,6 +451,7 @@ def main():
                     "source_url": f"https://instagram.com/{uname}" if uname else "",
                 }
             )
+    print(f"  [debug] skipped {skipped_non_business} non-business profiles")
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
 

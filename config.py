@@ -61,10 +61,9 @@ SEED_ACCOUNTS = [
     "highpointmarket",   # High Point Market - world's largest furniture/home-decor trade show
     "lasvegasmarket",    # Las Vegas Market - wholesale furniture/gift/home decor, 121K followers
     "ny_now",            # NY NOW - New York Gift Show, 105K followers
-    "jimmyimpex1994",    # small known account, kept as a sanity-check seed
 ]
-# All four trade-show accounts above are B2B wholesale marketplaces whose followers
-# are verified designers, retailers, wholesalers, and buyers -- exactly your target
+# All four accounts above are B2B wholesale marketplaces whose followers are
+# verified designers, retailers, wholesalers, and buyers -- exactly your target
 # audience. @flowersliving (a single florist's own account) and @target (mass
 # consumer retailer) were considered and skipped: their followers are fans/consumers,
 # not B2B buyers.

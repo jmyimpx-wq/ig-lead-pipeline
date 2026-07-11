@@ -295,6 +295,15 @@ def is_excluded_supplier(profile):
     return any(keyword in text for keyword in config.EXCLUDE_KEYWORDS)
 
 
+def has_real_website(profile):
+    """True if the profile has an actual external website or bio link. Accounts
+    with no web presence at all are much less likely to be a real importing/
+    reselling business -- just an Instagram-only hobby page."""
+    website = profile.get("website")
+    bio_links = profile.get("bioLinks")
+    return bool(website) or bool(bio_links)
+
+
 # ---------- step 3: free pre-filter (saves Snov.io credits) ----------
 
 _mx_cache = {}
@@ -519,6 +528,7 @@ def main():
     candidates = []  # [{email, username, source_url}]
     skipped_competitor = 0
     skipped_irrelevant = 0
+    skipped_no_website = 0
     non_business_but_kept = 0
     for profile in profiles:
         uname = profile.get("username")
@@ -528,19 +538,28 @@ def main():
         # it has both false positives (irrelevant hobby accounts toggle it on) and
         # false negatives (plenty of genuine small wedding/decor/retail businesses
         # never bother switching to a "business account"). The real quality gates
-        # are the two checks below: niche relevance and competitor exclusion.
+        # are the checks below: website presence, niche relevance, and competitor
+        # exclusion.
         if not profile.get("isBusiness", False):
             non_business_but_kept += 1
 
+        # No website/bio link at all -> much less likely to be a real importing/
+        # reselling business, just an Instagram-only page. Skip.
+        if not has_real_website(profile):
+            skipped_no_website += 1
+            continue
+
         # Exclude competitors: exporters/manufacturers/factories/suppliers are
-        # sellers like you, not buyers -- never leads, regardless of niche match.
+        # sellers like you, not buyers -- and exclude irrelevant verticals
+        # (jewelry, fashion, beauty) that matched on overly generic terms before.
         if is_excluded_supplier(profile):
             skipped_competitor += 1
             continue
 
-        # Real quality gate -- does this account actually match our target
-        # verticals (tableware, interior design, retail, wholesale/import,
-        # wedding/floral/event)?
+        # Real quality gate -- does this account actually match your specific
+        # product category (tabletop/tableware/home decor with design themes
+        # like chinoiserie, grandmillennial, toile) or adjacent verticals
+        # (interior design, wedding/floral/event)?
         if not is_relevant_b2b_lead(profile):
             skipped_irrelevant += 1
             continue
@@ -555,9 +574,10 @@ def main():
                 }
             )
     print(
-        f"  [debug] skipped {skipped_competitor} competitor (exporter/manufacturer), "
+        f"  [debug] skipped {skipped_no_website} no-website, "
+        f"{skipped_competitor} competitor/irrelevant-vertical, "
         f"{skipped_irrelevant} off-niche profiles "
-        f"({non_business_but_kept} of the kept/considered pool weren't marked 'business' by Instagram but passed anyway)"
+        f"({non_business_but_kept} of the considered pool weren't marked 'business' by Instagram but were still evaluated)"
     )
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")

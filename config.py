@@ -55,20 +55,28 @@ EXCLUDE_FREE_DOMAINS = set()  # e.g. {"gmail.com", "yahoo.com", "hotmail.com"}
 # quality gate, since Instagram's own "business account" flag is unreliable
 # (any hobbyist can flip it on) and lets through irrelevant accounts.
 RELEVANT_KEYWORDS = [
-    # tableware / tabletop
-    "tableware", "tabletop", "dinnerware", "table setting", "tablescape",
-    "kitchenware", "housewares", "giftware", "gift shop", "gift store",
-    # interior / home decor
-    "interior design", "interior designer", "interior decor", "home decor",
-    "home decorator", "home furnishing", "furniture", "decor studio",
-    "design studio", "home goods", "lifestyle store",
-    # retail / wholesale / import
-    "retailer", "retail store", "boutique", "wholesale", "wholesaler",
-    "importer", "import export", "distributor", "trading company",
-    # wedding / floral / event (core existing verticals)
+    # tableware / tabletop -- your actual core product category
+    "tableware", "tabletop", "table top", "dinnerware", "table setting",
+    "tablescape", "table linen", "placemats", "napkin", "charger plate",
+    "crockery", "glassware", "lacquer tray", "serving tray", "chargers",
+    # home decor with design/theme -- matches your actual ICP (Mrs Alice,
+    # Enchanted Home, Paolo Moschino, WH Hostess style)
+    "home decor", "homeware", "home decorator", "home furnishing",
+    "home accents", "giftware", "gift shop", "housewares",
+    # design aesthetics you specifically work in
+    "chinoiserie", "grandmillennial", "toile", "rattan", "ginger jar",
+    # interior design (buys/specs decor for clients)
+    "interior design", "interior designer", "interior decor", "design studio",
+    # wholesale / import (buyer side, not manufacturer side -- see EXCLUDE_KEYWORDS)
+    "wholesale buyer", "importer", "import export", "distributor",
+    # wedding / floral / event (existing verticals)
     "wedding designer", "wedding planner", "bridal", "floral design",
     "florist", "flower shop", "event design", "event planner", "event stylist",
 ]
+# NOTE: deliberately NOT included: generic terms like "boutique", "retailer",
+# "retail store", "lifestyle store" -- these matched irrelevant verticals
+# (e.g. a jewelry brand) in testing. Relevance must hit an actual decor/
+# tabletop/design term, not just "sells things online."
 
 # Known disposable/throwaway email domains -- reject outright, never worth
 # a Snov.io credit or an SMTP check.
@@ -92,6 +100,10 @@ EXCLUDE_KEYWORDS = [
     "supplier", "suppliers", "trading company", "trading co",
     "ready to ship", "factory direct", "wholesale supplier",
     "bulk manufacturer", "china factory", "made in china", "made in india",
+    # irrelevant verticals seen in testing -- not your product category
+    "jewelry", "jewellery", "necklace", "earrings", "bracelet", "rings",
+    "fashion", "apparel", "clothing brand", "boutique fashion",
+    "skincare", "beauty", "cosmetics", "makeup",
 ]
 
 # ---------------------------------------------------------------------------

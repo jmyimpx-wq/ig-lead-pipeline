@@ -105,6 +105,7 @@ def run_apify_actor(actor_id, run_input, poll_interval=5, max_wait=1800):
 
         if status == "SUCCEEDED":
             dataset_id = run_data["defaultDatasetId"]
+            print(f"  [debug] run {run_id} succeeded, dataset {dataset_id}")
             items_resp = requests.get(
                 f"{APIFY_BASE}/datasets/{dataset_id}/items",
                 params={"token": APIFY_TOKEN, "format": "json", "clean": "true"},
@@ -202,6 +203,9 @@ def discover_usernames(hashtags):
         "extractEmails": True,  # bonus: this actor can pull emails straight from captions too
     }
     items = run_apify_actor(APIFY_HASHTAG_ACTOR, run_input)
+    print(f"  [debug] hashtag actor returned {len(items)} raw items")
+    if items:
+        print(f"  [debug] sample item keys: {list(items[0].keys())}")
     usernames = set()
     for item in items:
         uname = item.get("ownerUsername") or item.get("username")
@@ -230,6 +234,9 @@ def crawl_seed_followers():
         }
         try:
             items = run_apify_actor(APIFY_FOLLOWERS_ACTOR, run_input)
+            print(f"  [debug] follower actor returned {len(items)} raw items for seed '{seed}'")
+            if items:
+                print(f"  [debug] sample item keys: {list(items[0].keys())}")
             for item in items:
                 uname = item.get("username")
                 if uname and uname.lower() != seed.lower():  # skip the seed account itself

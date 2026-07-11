@@ -272,6 +272,18 @@ def extract_email(profile):
     return match.group(0).lower().strip() if match else None
 
 
+def is_relevant_b2b_lead(profile):
+    """True only if the profile's category/bio/name actually matches our target
+    verticals (tableware, interior design, retail, wholesale/import, wedding/floral/
+    event). This is the real quality gate -- Instagram's own isBusiness flag alone
+    lets through plenty of irrelevant accounts that just happen to have it toggled on."""
+    text = " ".join(
+        str(profile.get(field, "") or "")
+        for field in ("category", "categoryName", "biography", "bio", "fullName")
+    ).lower()
+    return any(keyword in text for keyword in config.RELEVANT_KEYWORDS)
+
+
 # ---------- step 3: free pre-filter (saves Snov.io credits) ----------
 
 _mx_cache = {}
@@ -300,6 +312,69 @@ def prefilter(email, seen_emails):
     if not has_mx_record(domain):
         return False
     return True
+
+
+# ---------- step 3b: own SMTP-level verification (primary verifier, not Snov.io) ----------
+
+import smtplib
+import socket
+
+_mailbox_cache = {}
+
+
+def smtp_check_mailbox(email):
+    """Verify a mailbox actually exists by talking to its real mail server directly
+    (MAIL FROM + RCPT TO handshake, without sending anything) -- this is the same
+    core technique paid verifiers use, done ourselves instead of spending credits.
+
+    Returns "valid", "invalid", or "unknown" (server refused to say / connection
+    blocked / catch-all domain that accepts everything). "unknown" results are the
+    only ones handed to Snov.io downstream, as a fallback -- not the primary check.
+
+    Caveat: some hosting environments (including GitHub-hosted Actions runners)
+    block outbound port 25 to prevent spam abuse. If every check comes back
+    "unknown", that's almost certainly what's happening here -- the function
+    fails safe (never falsely rejects) in that case, it just can't confirm.
+    """
+    if email in _mailbox_cache:
+        return _mailbox_cache[email]
+
+    domain = email.split("@")[-1]
+    if domain in config.DISPOSABLE_EMAIL_DOMAINS:
+        _mailbox_cache[email] = "invalid"
+        return "invalid"
+
+    try:
+        answers = dns.resolver.resolve(domain, "MX", lifetime=5)
+        mx_host = str(sorted(answers, key=lambda r: r.preference)[0].exchange).rstrip(".")
+    except Exception:
+        _mailbox_cache[email] = "invalid"  # no mail server at all -> definitely can't be valid
+        return "invalid"
+
+    try:
+        smtp = smtplib.SMTP(timeout=8)
+        smtp.connect(mx_host, 25)
+        smtp.helo("verify.local")
+        smtp.mail("verify@verify.local")
+        code, _ = smtp.rcpt(email)
+        # Also probe an almost-certainly-nonexistent address at the same domain,
+        # to detect catch-all domains (which accept everything and can't be trusted).
+        probe_code, _ = smtp.rcpt(f"nonexistent-probe-xyz123@{domain}")
+        smtp.quit()
+
+        if probe_code == 250:
+            result = "unknown"  # catch-all domain, can't distinguish real from fake
+        elif code == 250:
+            result = "valid"
+        elif code in (550, 551, 553, 554):
+            result = "invalid"
+        else:
+            result = "unknown"
+    except (socket.timeout, ConnectionRefusedError, OSError, smtplib.SMTPException):
+        result = "unknown"  # couldn't connect -- likely port 25 blocked in this environment
+
+    _mailbox_cache[email] = result
+    return result
 
 
 # ---------- step 4: Snov.io verification ----------
@@ -432,14 +507,22 @@ def main():
 
     candidates = []  # [{email, username, source_url}]
     skipped_non_business = 0
+    skipped_irrelevant = 0
     for profile in profiles:
         uname = profile.get("username")
         seen_usernames.add(uname) if uname else None
 
-        # Only pursue business accounts -- personal/non-business Instagram profiles
-        # get skipped even if their bio happens to contain a deliverable email.
+        # Signal 1: Instagram's own business-account flag (weak on its own).
         if not profile.get("isBusiness", False):
             skipped_non_business += 1
+            continue
+
+        # Signal 2: real quality gate -- does this account actually match our
+        # target verticals (tableware, interior design, retail, wholesale/import,
+        # wedding/floral/event)? This is what filters out "business accounts"
+        # that aren't actually relevant businesses.
+        if not is_relevant_b2b_lead(profile):
+            skipped_irrelevant += 1
             continue
 
         email = extract_email(profile)
@@ -451,7 +534,7 @@ def main():
                     "source_url": f"https://instagram.com/{uname}" if uname else "",
                 }
             )
-    print(f"  [debug] skipped {skipped_non_business} non-business profiles")
+    print(f"  [debug] skipped {skipped_non_business} non-business, {skipped_irrelevant} off-niche profiles")
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
 
@@ -462,23 +545,47 @@ def main():
     if not candidates:
         return
 
-    try:
+    # Step A: our own SMTP-level mailbox check -- this is the PRIMARY verifier,
+    # not Snov.io. Snov.io is only used as a fallback for the "unknown" leftovers
+    # (catch-all domains, or environments where outbound port 25 is blocked).
+    own_valid, own_invalid, own_unknown = [], [], []
+    for c in candidates:
+        result = smtp_check_mailbox(c["email"])
+        if result == "valid":
+            own_valid.append(c)
+        elif result == "invalid":
+            own_invalid.append(c)
+        else:
+            own_unknown.append(c)
+    print(
+        f"Own SMTP verification: {len(own_valid)} valid, "
+        f"{len(own_invalid)} invalid (dropped), {len(own_unknown)} unknown "
+        f"(sending to Snov.io as fallback)"
+    )
+
+    valid = list(own_valid)
+
+    if own_unknown:
+        try:
+            token = snov_get_token()
+            emails = [c["email"] for c in own_unknown]
+            statuses = snov_verify_emails(token, emails)
+            fallback_valid = [c for c in own_unknown if statuses.get(c["email"]) == "valid"]
+            print(f"Snov.io fallback: {len(fallback_valid)}/{len(own_unknown)} verified valid")
+            valid.extend(fallback_valid)
+        except requests.RequestException as e:
+            print(f"Snov.io fallback step failed (unknown-status candidates dropped this run): {e}")
+
+    print(f"{len(valid)}/{len(candidates)} total verified valid")
+
+    if valid:
         token = snov_get_token()
-        emails = [c["email"] for c in candidates]
-        statuses = snov_verify_emails(token, emails)
+        snov_add_to_list(token, valid)
+        for v in valid:
+            seen_emails.add(v["email"])
+        save_json_set(SEEN_EMAILS_FILE, seen_emails)
 
-        valid = [c for c in candidates if statuses.get(c["email"]) == "valid"]
-        print(f"{len(valid)}/{len(candidates)} verified valid by Snov.io")
-
-        if valid:
-            snov_add_to_list(token, valid)
-            for v in valid:
-                seen_emails.add(v["email"])
-            save_json_set(SEEN_EMAILS_FILE, seen_emails)
-
-        print(f"Done. Pushed {len(valid)} new verified leads to Snov.io list {SNOV_LIST_ID}.")
-    except requests.RequestException as e:
-        print(f"Snov.io step failed (will retry these candidates next run): {e}")
+    print(f"Done. Pushed {len(valid)} new verified leads to Snov.io list {SNOV_LIST_ID}.")
 
 
 if __name__ == "__main__":

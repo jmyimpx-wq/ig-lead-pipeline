@@ -17,6 +17,26 @@ Actions, no server needed.
   follow these hubs every day, so this source refreshes without any tag
   management at all, and is usually your biggest volume driver.
 
+**Two more quality layers sit on top of discovery:**
+- **B2B relevance filter** — a profile only becomes a candidate if its
+  Instagram category, bio, or name actually matches your target verticals
+  (tableware, interior design, retail, wholesale/import, wedding/floral/event)
+  — see `config.RELEVANT_KEYWORDS`. Instagram's own "business account" flag is
+  checked too, but isn't enough alone -- plenty of irrelevant accounts have it
+  toggled on.
+- **Own SMTP-level email verification** — before anything touches Snov.io, the
+  pipeline connects directly to each email's real mail server and checks
+  whether the mailbox exists (the same core technique paid verifiers use).
+  Snov.io is only called as a fallback for leftover "unknown" cases (catch-all
+  domains, unresponsive servers) -- not as the primary verifier, which cuts
+  credit usage substantially.
+  **Caveat:** GitHub-hosted Actions runners commonly block outbound port 25 to
+  prevent spam abuse. If a run's logs show 100% "unknown" from the own-SMTP
+  step, that's what's happening -- the check fails safe (never falsely
+  approves or rejects); everything just falls through to the Snov.io fallback
+  instead, so leads aren't lost, only verified by a different path than
+  intended.
+
 ## 1. One-time setup
 
 1. Create a new **private** GitHub repo, push these files to it.

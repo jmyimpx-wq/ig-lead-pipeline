@@ -49,6 +49,35 @@ MAX_PROFILES_PER_RUN = 650
 EXCLUDE_FREE_DOMAINS = set()  # e.g. {"gmail.com", "yahoo.com", "hotmail.com"}
 
 # ---------------------------------------------------------------------------
+# B2B relevance filter. A profile passes only if its Instagram category, bio,
+# or display name contains at least one of these terms -- this is the real
+# quality gate, since Instagram's own "business account" flag is unreliable
+# (any hobbyist can flip it on) and lets through irrelevant accounts.
+RELEVANT_KEYWORDS = [
+    # tableware / tabletop
+    "tableware", "tabletop", "dinnerware", "table setting", "tablescape",
+    "kitchenware", "housewares", "giftware", "gift shop", "gift store",
+    # interior / home decor
+    "interior design", "interior designer", "interior decor", "home decor",
+    "home decorator", "home furnishing", "furniture", "decor studio",
+    "design studio", "home goods", "lifestyle store",
+    # retail / wholesale / import
+    "retailer", "retail store", "boutique", "wholesale", "wholesaler",
+    "importer", "import export", "distributor", "trading company",
+    # wedding / floral / event (core existing verticals)
+    "wedding designer", "wedding planner", "bridal", "floral design",
+    "florist", "flower shop", "event design", "event planner", "event stylist",
+]
+
+# Known disposable/throwaway email domains -- reject outright, never worth
+# a Snov.io credit or an SMTP check.
+DISPOSABLE_EMAIL_DOMAINS = {
+    "mailinator.com", "10minutemail.com", "guerrillamail.com", "tempmail.com",
+    "yopmail.com", "trashmail.com", "throwawaymail.com", "getnada.com",
+    "fakeinbox.com", "sharklasers.com", "dispostable.com", "maildrop.cc",
+}
+
+# ---------------------------------------------------------------------------
 # SOURCE 2: Network/follower-graph expansion.
 # These are large "hub" accounts in your niches -- wholesale marketplaces,
 # trade associations, big industry hashtag campaigns. Their FOLLOWERS get

@@ -34,7 +34,11 @@ REGION_SUFFIXES = ["usa", "uk", "dubai", "saudi", "uae"]
 
 # How many hashtags to actually run per day (rotate through the pool so you
 # don't hammer the same tags every run — spreads discovery + cost over the week)
-HASHTAGS_PER_RUN = 15
+HASHTAGS_PER_RUN = 3
+
+# Results requested per hashtag from the hashtag scraper. Keep small for testing;
+# raise once the pipeline is confirmed working end-to-end (default target: 200).
+HASHTAG_RESULTS_PER_TAG = 20
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.

@@ -199,7 +199,7 @@ def discover_usernames(hashtags):
     {"hashtags": [...], "limit": N, "extractEmails": true}"""
     run_input = {
         "hashtags": hashtags,
-        "limit": 200,
+        "limit": config.HASHTAG_RESULTS_PER_TAG,
         "extractEmails": True,  # bonus: this actor can pull emails straight from captions too
     }
     items = run_apify_actor(APIFY_HASHTAG_ACTOR, run_input)

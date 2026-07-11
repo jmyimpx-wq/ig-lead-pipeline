@@ -77,6 +77,50 @@ APIFY_BASE = "https://api.apify.com/v2"
 SNOV_BASE = "https://api.snov.io"
 
 
+def run_apify_actor(actor_id, run_input, poll_interval=5, max_wait=1800):
+    """Start an Apify actor run asynchronously and poll for completion, instead of using
+    the synchronous run-sync-get-dataset-items endpoint. The sync endpoint holds one HTTP
+    connection open for the entire run duration, which gets killed by intermediate proxies
+    on longer runs (observed: RemoteDisconnected around the ~5 minute mark). This async
+    start+poll+fetch pattern avoids that entirely."""
+    start_resp = requests.post(
+        f"{APIFY_BASE}/acts/{actor_id}/runs",
+        params={"token": APIFY_TOKEN},
+        json=run_input,
+        timeout=30,
+    )
+    start_resp.raise_for_status()
+    run_id = start_resp.json()["data"]["id"]
+
+    started_at = time.time()
+    while time.time() - started_at < max_wait:
+        status_resp = requests.get(
+            f"{APIFY_BASE}/actor-runs/{run_id}",
+            params={"token": APIFY_TOKEN},
+            timeout=30,
+        )
+        status_resp.raise_for_status()
+        run_data = status_resp.json()["data"]
+        status = run_data["status"]
+
+        if status == "SUCCEEDED":
+            dataset_id = run_data["defaultDatasetId"]
+            items_resp = requests.get(
+                f"{APIFY_BASE}/datasets/{dataset_id}/items",
+                params={"token": APIFY_TOKEN, "format": "json", "clean": "true"},
+                timeout=60,
+            )
+            items_resp.raise_for_status()
+            return items_resp.json()
+
+        if status in ("FAILED", "ABORTED", "TIMED-OUT"):
+            raise RuntimeError(f"Apify run {run_id} ({actor_id}) ended with status {status}")
+
+        time.sleep(poll_interval)
+
+    raise TimeoutError(f"Apify run {run_id} ({actor_id}) did not finish within {max_wait}s")
+
+
 # ---------- state helpers ----------
 
 def load_json_set(path):
@@ -149,7 +193,7 @@ def harvest_hashtags(profiles):
 
 
 def discover_usernames(hashtags):
-    """Run the Apify hashtag scraper synchronously and collect owner usernames.
+    """Run the Apify hashtag scraper and collect owner usernames.
     Schema confirmed for instaprism/instagram-hashtag-scraper:
     {"hashtags": [...], "limit": N, "extractEmails": true}"""
     run_input = {
@@ -157,14 +201,7 @@ def discover_usernames(hashtags):
         "limit": 200,
         "extractEmails": True,  # bonus: this actor can pull emails straight from captions too
     }
-    resp = requests.post(
-        f"{APIFY_BASE}/acts/{APIFY_HASHTAG_ACTOR}/run-sync-get-dataset-items",
-        params={"token": APIFY_TOKEN},
-        json=run_input,
-        timeout=600,
-    )
-    resp.raise_for_status()
-    items = resp.json()
+    items = run_apify_actor(APIFY_HASHTAG_ACTOR, run_input)
     usernames = set()
     for item in items:
         uname = item.get("ownerUsername") or item.get("username")
@@ -192,18 +229,12 @@ def crawl_seed_followers():
             "maxItems": config.MAX_FOLLOWERS_PER_SEED_PER_RUN,
         }
         try:
-            resp = requests.post(
-                f"{APIFY_BASE}/acts/{APIFY_FOLLOWERS_ACTOR}/run-sync-get-dataset-items",
-                params={"token": APIFY_TOKEN},
-                json=run_input,
-                timeout=600,
-            )
-            resp.raise_for_status()
-            for item in resp.json():
+            items = run_apify_actor(APIFY_FOLLOWERS_ACTOR, run_input)
+            for item in items:
                 uname = item.get("username")
                 if uname and uname.lower() != seed.lower():  # skip the seed account itself
                     usernames.add(uname)
-        except requests.RequestException as e:
+        except (requests.RequestException, RuntimeError, TimeoutError) as e:
             print(f"Follower crawl failed for seed '{seed}': {e}")
     return usernames
 
@@ -221,14 +252,7 @@ def scrape_profiles(usernames):
         "getFollowings": False,
         "maxItems": len(start_urls),
     }
-    resp = requests.post(
-        f"{APIFY_BASE}/acts/{APIFY_PROFILE_ACTOR}/run-sync-get-dataset-items",
-        params={"token": APIFY_TOKEN},
-        json=run_input,
-        timeout=900,
-    )
-    resp.raise_for_status()
-    return resp.json()
+    return run_apify_actor(APIFY_PROFILE_ACTOR, run_input, max_wait=3600)
 
 
 def extract_email(profile):

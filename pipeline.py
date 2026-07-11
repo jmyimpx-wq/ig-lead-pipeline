@@ -51,9 +51,24 @@ HASHTAG_TAG_REGEX = re.compile(r"#(\w{3,30})")
 EMAIL_REGEX = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
-APIFY_HASHTAG_ACTOR = os.environ.get("APIFY_HASHTAG_ACTOR", "instaprism/instagram-hashtag-scraper")
-APIFY_PROFILE_ACTOR = os.environ.get("APIFY_PROFILE_ACTOR", "apidojo/instagram-user-scraper")
-APIFY_FOLLOWERS_ACTOR = os.environ.get("APIFY_FOLLOWERS_ACTOR", "apidojo/instagram-user-scraper")
+
+
+def _to_api_actor_id(actor_id: str) -> str:
+    """Apify's REST API requires 'username~actor-name' in URLs, not 'username/actor-name'
+    (the slash form is only used in the Store UI / task JSON). Convert automatically so
+    secrets can be stored in either format without breaking API calls."""
+    return actor_id.replace("/", "~")
+
+
+APIFY_HASHTAG_ACTOR = _to_api_actor_id(
+    os.environ.get("APIFY_HASHTAG_ACTOR", "instaprism/instagram-hashtag-scraper")
+)
+APIFY_PROFILE_ACTOR = _to_api_actor_id(
+    os.environ.get("APIFY_PROFILE_ACTOR", "apidojo/instagram-user-scraper")
+)
+APIFY_FOLLOWERS_ACTOR = _to_api_actor_id(
+    os.environ.get("APIFY_FOLLOWERS_ACTOR", "apidojo/instagram-user-scraper")
+)
 SNOV_CLIENT_ID = os.environ["SNOV_CLIENT_ID"]
 SNOV_CLIENT_SECRET = os.environ["SNOV_CLIENT_SECRET"]
 SNOV_LIST_ID = os.environ["SNOV_LIST_ID"]

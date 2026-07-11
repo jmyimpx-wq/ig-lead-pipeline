@@ -338,6 +338,19 @@ def snov_verify_emails(token, emails):
             json={"emails": batch},
             timeout=60,
         )
+        if start_resp.status_code == 422:
+            # JSON body rejected -- print the exact validation message, then retry
+            # with form-encoded emails[] (matches the pattern Snov.io's own PHP
+            # examples use for this family of endpoints).
+            print(f"  [debug] 422 on JSON body: {start_resp.text}")
+            start_resp = requests.post(
+                "https://api.snov.io/v2/email-verification/start",
+                headers=headers,
+                data={"emails[]": batch},
+                timeout=60,
+            )
+            if start_resp.status_code == 422:
+                print(f"  [debug] 422 on form body too: {start_resp.text}")
         start_resp.raise_for_status()
         start_data = start_resp.json()
         print(f"  [debug] snov verification start response: {start_data}")
@@ -432,26 +445,30 @@ def main():
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
 
+    # Save state now -- usernames/profiles already scraped (and Apify credits spent)
+    # should never be reprocessed, even if the verification step below fails.
+    save_json_set(SEEN_USERNAMES_FILE, seen_usernames)
+
     if not candidates:
-        save_json_set(SEEN_USERNAMES_FILE, seen_usernames)
         return
 
-    token = snov_get_token()
-    emails = [c["email"] for c in candidates]
-    statuses = snov_verify_emails(token, emails)
+    try:
+        token = snov_get_token()
+        emails = [c["email"] for c in candidates]
+        statuses = snov_verify_emails(token, emails)
 
-    valid = [c for c in candidates if statuses.get(c["email"]) == "valid"]
-    print(f"{len(valid)}/{len(candidates)} verified valid by Snov.io")
+        valid = [c for c in candidates if statuses.get(c["email"]) == "valid"]
+        print(f"{len(valid)}/{len(candidates)} verified valid by Snov.io")
 
-    if valid:
-        snov_add_to_list(token, valid)
-        for v in valid:
-            seen_emails.add(v["email"])
+        if valid:
+            snov_add_to_list(token, valid)
+            for v in valid:
+                seen_emails.add(v["email"])
+            save_json_set(SEEN_EMAILS_FILE, seen_emails)
 
-    save_json_set(SEEN_USERNAMES_FILE, seen_usernames)
-    save_json_set(SEEN_EMAILS_FILE, seen_emails)
-
-    print(f"Done. Pushed {len(valid)} new verified leads to Snov.io list {SNOV_LIST_ID}.")
+        print(f"Done. Pushed {len(valid)} new verified leads to Snov.io list {SNOV_LIST_ID}.")
+    except requests.RequestException as e:
+        print(f"Snov.io step failed (will retry these candidates next run): {e}")
 
 
 if __name__ == "__main__":

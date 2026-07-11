@@ -24,9 +24,9 @@ of exhausting a fixed hashtag list:
 
 Required environment variables / GitHub Secrets:
   APIFY_TOKEN
-  APIFY_HASHTAG_ACTOR      e.g. "apify/instagram-hashtag-scraper" (verify current actor id in Apify console)
-  APIFY_PROFILE_ACTOR      e.g. "apify/instagram-profile-scraper" (verify current actor id in Apify console)
-  APIFY_FOLLOWERS_ACTOR    e.g. "apify/instagram-followers-scraper" (verify current actor id in Apify console)
+  APIFY_HASHTAG_ACTOR      confirmed: "instaprism/instagram-hashtag-scraper"
+  APIFY_PROFILE_ACTOR      confirmed: "apidojo/instagram-user-scraper" (getFollowers=false)
+  APIFY_FOLLOWERS_ACTOR    confirmed: "apidojo/instagram-user-scraper" (getFollowers=true, same actor)
   SNOV_CLIENT_ID
   SNOV_CLIENT_SECRET
   SNOV_LIST_ID             the Snov.io prospect list to push valid leads into
@@ -51,9 +51,9 @@ HASHTAG_TAG_REGEX = re.compile(r"#(\w{3,30})")
 EMAIL_REGEX = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
-APIFY_HASHTAG_ACTOR = os.environ.get("APIFY_HASHTAG_ACTOR", "apify~instagram-hashtag-scraper")
-APIFY_PROFILE_ACTOR = os.environ.get("APIFY_PROFILE_ACTOR", "apify~instagram-profile-scraper")
-APIFY_FOLLOWERS_ACTOR = os.environ.get("APIFY_FOLLOWERS_ACTOR", "apify~instagram-followers-scraper")
+APIFY_HASHTAG_ACTOR = os.environ.get("APIFY_HASHTAG_ACTOR", "instaprism/instagram-hashtag-scraper")
+APIFY_PROFILE_ACTOR = os.environ.get("APIFY_PROFILE_ACTOR", "apidojo/instagram-user-scraper")
+APIFY_FOLLOWERS_ACTOR = os.environ.get("APIFY_FOLLOWERS_ACTOR", "apidojo/instagram-user-scraper")
 SNOV_CLIENT_ID = os.environ["SNOV_CLIENT_ID"]
 SNOV_CLIENT_SECRET = os.environ["SNOV_CLIENT_SECRET"]
 SNOV_LIST_ID = os.environ["SNOV_LIST_ID"]
@@ -134,10 +134,16 @@ def harvest_hashtags(profiles):
 
 
 def discover_usernames(hashtags):
-    """Run the Apify hashtag scraper synchronously and collect owner usernames."""
-    run_input = {"hashtags": hashtags, "resultsLimit": 200}
+    """Run the Apify hashtag scraper synchronously and collect owner usernames.
+    Schema confirmed for instaprism/instagram-hashtag-scraper:
+    {"hashtags": [...], "limit": N, "extractEmails": true}"""
+    run_input = {
+        "hashtags": hashtags,
+        "limit": 200,
+        "extractEmails": True,  # bonus: this actor can pull emails straight from captions too
+    }
     resp = requests.post(
-        f"{APIFY_BASE}/acts/{APIFY_PROFILE_ACTOR if False else APIFY_HASHTAG_ACTOR}/run-sync-get-dataset-items",
+        f"{APIFY_BASE}/acts/{APIFY_HASHTAG_ACTOR}/run-sync-get-dataset-items",
         params={"token": APIFY_TOKEN},
         json=run_input,
         timeout=600,
@@ -155,13 +161,20 @@ def discover_usernames(hashtags):
 # ---------- source 2: follower-graph crawl (self-renewing, no tag list needed) ----------
 
 def crawl_seed_followers():
-    """Pull followers of large hub accounts. This pool refreshes on its own as new
-    people follow these hubs -- it doesn't exhaust the way a fixed hashtag list does."""
+    """Pull followers of large hub accounts using apidojo/instagram-user-scraper
+    with getFollowers=true. This pool refreshes on its own as new people follow
+    these hubs -- it doesn't exhaust the way a fixed hashtag list does.
+    Schema confirmed: {"startUrls": [...], "getFollowers": bool, "getFollowings": bool, "maxItems": N}
+    Output shape for follower lists isn't 100% confirmed from the Store page alone --
+    this parses defensively across a few likely field names. If a first real run comes
+    back empty, open one dataset item in the Apify console and adjust the field names below."""
     usernames = set()
     for seed in config.SEED_ACCOUNTS:
         run_input = {
-            "username": seed,
-            "resultsLimit": config.MAX_FOLLOWERS_PER_SEED_PER_RUN,
+            "startUrls": [f"https://www.instagram.com/{seed}/"],
+            "getFollowers": True,
+            "getFollowings": False,
+            "maxItems": config.MAX_FOLLOWERS_PER_SEED_PER_RUN,
         }
         try:
             resp = requests.post(
@@ -172,9 +185,15 @@ def crawl_seed_followers():
             )
             resp.raise_for_status()
             for item in resp.json():
+                # Case 1: each dataset item IS a follower record
                 uname = item.get("username")
                 if uname:
                     usernames.add(uname)
+                # Case 2: followers nested under the seed account's record
+                for follower in item.get("followers", []) or []:
+                    f_uname = follower.get("username") if isinstance(follower, dict) else follower
+                    if f_uname:
+                        usernames.add(f_uname)
         except requests.RequestException as e:
             print(f"Follower crawl failed for seed '{seed}': {e}")
     return usernames
@@ -183,8 +202,16 @@ def crawl_seed_followers():
 # ---------- step 2: profile / bio scraping ----------
 
 def scrape_profiles(usernames):
-    """Run the Apify profile scraper on a batch of usernames, return raw profile dicts."""
-    run_input = {"usernames": list(usernames)}
+    """Run apidojo/instagram-user-scraper on a batch of usernames (profile-details mode:
+    getFollowers/getFollowings both false), return raw profile dicts.
+    Schema confirmed: {"startUrls": [...], "getFollowers": false, "getFollowings": false, "maxItems": N}"""
+    start_urls = [f"https://www.instagram.com/{u}/" for u in usernames]
+    run_input = {
+        "startUrls": start_urls,
+        "getFollowers": False,
+        "getFollowings": False,
+        "maxItems": len(start_urls),
+    }
     resp = requests.post(
         f"{APIFY_BASE}/acts/{APIFY_PROFILE_ACTOR}/run-sync-get-dataset-items",
         params={"token": APIFY_TOKEN},

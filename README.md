@@ -21,11 +21,17 @@ Actions, no server needed.
 
 1. Create a new **private** GitHub repo, push these files to it.
 2. Get an **Apify** account (apify.com) — free $5/month credit to start testing.
-   - Pick an Instagram Hashtag Scraper, an Instagram Profile Scraper, and an
-     Instagram Followers Scraper actor from the Apify Store (no-login versions
-     — search "Instagram Profile Scraper" / "Instagram Hashtag Scraper" /
-     "Instagram Followers Scraper", check each actor's Store page for its
-     current actor ID, e.g. `username~actor-name`).
+   - Actors confirmed and already wired into `pipeline.py`:
+     - Hashtag discovery: `instaprism/instagram-hashtag-scraper`
+     - Profile details + follower crawl: `apidojo/instagram-user-scraper` (same actor
+       does both jobs — `getFollowers: false` for plain profile lookups,
+       `getFollowers: true` for crawling a hub account's followers)
+   - **Before your first real daily run**, do one manual test of the followers mode
+     (`getFollowers: true`) directly in the Apify console on a small seed account,
+     and open one dataset item to confirm the exact field name each follower's
+     username sits under. `crawl_seed_followers()` in `pipeline.py` already checks
+     a couple of likely shapes, but confirm against a real run before trusting the
+     numbers.
    - Note: actor IDs and exact input field names (`hashtags`, `usernames`,
      `resultsLimit`) can differ slightly between actors/versions — open the
      actor's "Input" tab on Apify Console and adjust `pipeline.py`'s
@@ -36,9 +42,9 @@ Actions, no server needed.
    free plan only gives 50 credits/month, nowhere near 500-1000/day).
 4. In your GitHub repo: **Settings → Secrets and variables → Actions**, add:
    - `APIFY_TOKEN`
-   - `APIFY_HASHTAG_ACTOR` (e.g. `apify~instagram-hashtag-scraper`)
-   - `APIFY_PROFILE_ACTOR` (e.g. `apify~instagram-profile-scraper`)
-   - `APIFY_FOLLOWERS_ACTOR` (e.g. `apify~instagram-followers-scraper`)
+   - `APIFY_HASHTAG_ACTOR` → `instaprism/instagram-hashtag-scraper`
+   - `APIFY_PROFILE_ACTOR` → `apidojo/instagram-user-scraper`
+   - `APIFY_FOLLOWERS_ACTOR` → `apidojo/instagram-user-scraper` (same actor, different flags)
    - `SNOV_CLIENT_ID`
    - `SNOV_CLIENT_SECRET`
    - `SNOV_LIST_ID` (the Snov.io list you want leads pushed into — create a

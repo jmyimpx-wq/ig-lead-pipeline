@@ -57,12 +57,17 @@ EXCLUDE_FREE_DOMAINS = set()  # e.g. {"gmail.com", "yahoo.com", "hotmail.com"}
 # hubs every day, so this pool doesn't dry up the way a fixed hashtag list does.
 # Add/replace with real handles relevant to your niches -- these are placeholders.
 SEED_ACCOUNTS = [
-    "jimmyimpex1994",  # small known account (36 followers) -- fast, reliable for testing
+    "americasmartatl",   # AmericasMart Atlanta - wholesale gift/decor/lifestyle trade show, 177K followers
+    "highpointmarket",   # High Point Market - world's largest furniture/home-decor trade show
+    "lasvegasmarket",    # Las Vegas Market - wholesale furniture/gift/home decor, 121K followers
+    "ny_now",            # NY NOW - New York Gift Show, 105K followers
+    "jimmyimpex1994",    # small known account, kept as a sanity-check seed
 ]
-# NOTE: this is a TEST seed only. Once the pipeline runs clean end-to-end, replace
-# with real large hub accounts in your niches (wholesale marketplaces, trade
-# associations, big wedding/floral/tabletop industry pages) for real lead volume --
-# a 36-follower account won't produce meaningful daily leads on its own.
+# All four trade-show accounts above are B2B wholesale marketplaces whose followers
+# are verified designers, retailers, wholesalers, and buyers -- exactly your target
+# audience. @flowersliving (a single florist's own account) and @target (mass
+# consumer retailer) were considered and skipped: their followers are fans/consumers,
+# not B2B buyers.
 MAX_FOLLOWERS_PER_SEED_PER_RUN = 500  # cost lever for network crawl
 
 # ---------------------------------------------------------------------------

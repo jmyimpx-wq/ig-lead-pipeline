@@ -61,7 +61,7 @@ def _to_api_actor_id(actor_id: str) -> str:
 
 
 APIFY_HASHTAG_ACTOR = _to_api_actor_id(
-    os.environ.get("APIFY_HASHTAG_ACTOR", "instaprism/instagram-hashtag-scraper")
+    os.environ.get("APIFY_HASHTAG_ACTOR", "apify/instagram-hashtag-scraper")
 )
 APIFY_PROFILE_ACTOR = _to_api_actor_id(
     os.environ.get("APIFY_PROFILE_ACTOR", "apidojo/instagram-user-scraper")
@@ -195,12 +195,12 @@ def harvest_hashtags(profiles):
 
 def discover_usernames(hashtags):
     """Run the Apify hashtag scraper and collect owner usernames.
-    Schema confirmed for instaprism/instagram-hashtag-scraper:
-    {"hashtags": [...], "limit": N, "extractEmails": true}"""
+    Schema confirmed for the official apify/instagram-hashtag-scraper (Maintained by Apify):
+    {"hashtags": [...], "keywordSearch": false, "resultsLimit": N}"""
     run_input = {
         "hashtags": hashtags,
-        "limit": config.HASHTAG_RESULTS_PER_TAG,
-        "extractEmails": True,  # bonus: this actor can pull emails straight from captions too
+        "keywordSearch": False,
+        "resultsLimit": config.HASHTAG_RESULTS_PER_TAG,
     }
     items = run_apify_actor(APIFY_HASHTAG_ACTOR, run_input)
     print(f"  [debug] hashtag actor returned {len(items)} raw items")

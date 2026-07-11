@@ -41,7 +41,8 @@ HASHTAG_RESULTS_PER_TAG = 80
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.
-MAX_PROFILES_PER_RUN = 60  # TEMP: small test batch to validate new filters, then raise back to 650
+MAX_PROFILES_PER_RUN = 800  # balanced: relaxed isBusiness gate should lift conversion meaningfully;
+# re-tune this number once a few real runs show the new actual conversion rate
 
 # Free-provider domains to exclude if you only want business-domain emails.
 # Set to empty set [] if you want to keep gmail/yahoo/outlook leads too

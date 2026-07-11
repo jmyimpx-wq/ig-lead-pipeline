@@ -517,17 +517,20 @@ def main():
     harvest_hashtags(profiles)  # feed tomorrow's auto-expanded hashtag pool
 
     candidates = []  # [{email, username, source_url}]
-    skipped_non_business = 0
-    skipped_irrelevant = 0
     skipped_competitor = 0
+    skipped_irrelevant = 0
+    non_business_but_kept = 0
     for profile in profiles:
         uname = profile.get("username")
         seen_usernames.add(uname) if uname else None
 
-        # Signal 1: Instagram's own business-account flag (weak on its own).
+        # NOTE: Instagram's isBusiness flag is intentionally NOT a hard filter --
+        # it has both false positives (irrelevant hobby accounts toggle it on) and
+        # false negatives (plenty of genuine small wedding/decor/retail businesses
+        # never bother switching to a "business account"). The real quality gates
+        # are the two checks below: niche relevance and competitor exclusion.
         if not profile.get("isBusiness", False):
-            skipped_non_business += 1
-            continue
+            non_business_but_kept += 1
 
         # Exclude competitors: exporters/manufacturers/factories/suppliers are
         # sellers like you, not buyers -- never leads, regardless of niche match.
@@ -535,10 +538,9 @@ def main():
             skipped_competitor += 1
             continue
 
-        # Signal 2: real quality gate -- does this account actually match our
-        # target verticals (tableware, interior design, retail, wholesale/import,
-        # wedding/floral/event)? This is what filters out "business accounts"
-        # that aren't actually relevant businesses.
+        # Real quality gate -- does this account actually match our target
+        # verticals (tableware, interior design, retail, wholesale/import,
+        # wedding/floral/event)?
         if not is_relevant_b2b_lead(profile):
             skipped_irrelevant += 1
             continue
@@ -553,9 +555,9 @@ def main():
                 }
             )
     print(
-        f"  [debug] skipped {skipped_non_business} non-business, "
-        f"{skipped_competitor} competitor (exporter/manufacturer), "
-        f"{skipped_irrelevant} off-niche profiles"
+        f"  [debug] skipped {skipped_competitor} competitor (exporter/manufacturer), "
+        f"{skipped_irrelevant} off-niche profiles "
+        f"({non_business_but_kept} of the kept/considered pool weren't marked 'business' by Instagram but passed anyway)"
     )
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")

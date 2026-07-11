@@ -319,31 +319,57 @@ def snov_get_token():
 
 
 def snov_verify_emails(token, emails):
-    """Submit emails for verification, poll for status, return dict {email: status}."""
+    """Submit emails for verification and poll for results using Snov.io's current v2 API:
+    POST /v2/email-verification/start -> {"data": {"task_hash": "..."}}
+    GET  /v2/email-verification/result?task_hash=... -> {"status": "completed"/"in_progress", "data": [...]}
+    Auth via 'Authorization: Bearer <token>' header (the old v1 access_token-as-param
+    endpoints this pipeline used earlier are deprecated and were silently failing).
+    Returns dict {email: status} where status is one of "valid"/"not_valid"/"unknown"."""
+    headers = {"Authorization": f"Bearer {token}"}
     results = {}
     batch_size = 100
+
     for i in range(0, len(emails), batch_size):
         batch = emails[i : i + batch_size]
-        # Add for verification
-        requests.post(
-            f"{SNOV_BASE}/v1/add-emails-for-verification",
-            data={"access_token": token, "emails[]": batch},
+
+        start_resp = requests.post(
+            "https://api.snov.io/v2/email-verification/start",
+            headers=headers,
+            json={"emails": batch},
             timeout=60,
         )
-        # NOTE: Snov.io verification is asynchronous for larger batches.
-        # Give it time, then poll status. Adjust sleep/retries based on
-        # actual turnaround you observe -- check current Snov.io API docs
-        # (https://snov.io/api) for the exact status-check method/params,
-        # since response shape can change.
-        time.sleep(30)
-        status_resp = requests.get(
-            f"{SNOV_BASE}/v1/get-emails-status",
-            params={"access_token": token, "emails[]": batch},
-            timeout=60,
-        )
-        if status_resp.ok:
-            for row in status_resp.json().get("data", []):
-                results[row.get("email")] = row.get("status")
+        start_resp.raise_for_status()
+        start_data = start_resp.json()
+        print(f"  [debug] snov verification start response: {start_data}")
+        task_hash = start_data.get("data", {}).get("task_hash")
+        if not task_hash:
+            print("  [debug] no task_hash returned, skipping this batch")
+            continue
+
+        # Poll for completion
+        for attempt in range(30):  # up to ~5 minutes (30 x 10s)
+            time.sleep(10)
+            result_resp = requests.get(
+                "https://api.snov.io/v2/email-verification/result",
+                headers=headers,
+                params={"task_hash": task_hash},
+                timeout=60,
+            )
+            result_resp.raise_for_status()
+            result_data = result_resp.json()
+            status = result_data.get("status")
+            if status == "completed":
+                print(f"  [debug] snov verification completed: {result_data}")
+                for row in result_data.get("data", []):
+                    email = row.get("email")
+                    email_status = row.get("status") or row.get("smtp_status")
+                    if email:
+                        results[email] = email_status
+                break
+            print(f"  [debug] snov verification status: {status}, waiting...")
+        else:
+            print(f"  [debug] snov verification for task {task_hash} did not complete in time")
+
     return results
 
 

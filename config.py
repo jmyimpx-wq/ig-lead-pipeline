@@ -54,13 +54,12 @@ EXCLUDE_FREE_DOMAINS = set()  # e.g. {"gmail.com", "yahoo.com", "hotmail.com"}
 # hubs every day, so this pool doesn't dry up the way a fixed hashtag list does.
 # Add/replace with real handles relevant to your niches -- these are placeholders.
 SEED_ACCOUNTS = [
-    # wedding/event
-    "theknot", "weddingwire", "brides",
-    # floral trade
-    "flowershoptrend",
-    # tabletop / home decor wholesale-adjacent
-    "potterybarn", "waynewheeler_tabletop",
+    "jimmyimpex1994",  # small known account (36 followers) -- fast, reliable for testing
 ]
+# NOTE: this is a TEST seed only. Once the pipeline runs clean end-to-end, replace
+# with real large hub accounts in your niches (wholesale marketplaces, trade
+# associations, big wedding/floral/tabletop industry pages) for real lead volume --
+# a 36-follower account won't produce meaningful daily leads on its own.
 MAX_FOLLOWERS_PER_SEED_PER_RUN = 500  # cost lever for network crawl
 
 # ---------------------------------------------------------------------------

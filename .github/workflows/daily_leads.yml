@@ -1,0 +1,44 @@
+name: Daily Instagram Lead Pipeline
+
+on:
+  schedule:
+    # Runs at 03:00 UTC = 08:30 AM IST every day. Adjust as needed.
+    - cron: "0 3 * * *"
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab too
+
+permissions:
+  contents: write   # needed so the workflow can commit updated state/ files back
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          APIFY_HASHTAG_ACTOR: ${{ secrets.APIFY_HASHTAG_ACTOR }}
+          APIFY_PROFILE_ACTOR: ${{ secrets.APIFY_PROFILE_ACTOR }}
+          APIFY_FOLLOWERS_ACTOR: ${{ secrets.APIFY_FOLLOWERS_ACTOR }}
+          SNOV_CLIENT_ID: ${{ secrets.SNOV_CLIENT_ID }}
+          SNOV_CLIENT_SECRET: ${{ secrets.SNOV_CLIENT_SECRET }}
+          SNOV_LIST_ID: ${{ secrets.SNOV_LIST_ID }}
+        run: python pipeline.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "lead-pipeline-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add state/  # includes seen_usernames, seen_emails, discovered_hashtags
+          git diff --staged --quiet || git commit -m "Update seen-leads state [skip ci]"
+          git push

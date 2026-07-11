@@ -327,7 +327,7 @@ def snov_verify_emails(token, emails):
     Returns dict {email: status} where status is one of "valid"/"not_valid"/"unknown"."""
     headers = {"Authorization": f"Bearer {token}"}
     results = {}
-    batch_size = 100
+    batch_size = 10  # Snov.io's email-verification/start endpoint caps at 10 emails/request
 
     for i in range(0, len(emails), batch_size):
         batch = emails[i : i + batch_size]

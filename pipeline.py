@@ -375,7 +375,8 @@ def snov_verify_emails(token, emails):
                 print(f"  [debug] snov verification completed: {result_data}")
                 for row in result_data.get("data", []):
                     email = row.get("email")
-                    email_status = row.get("status") or row.get("smtp_status")
+                    result_obj = row.get("result", {}) or {}
+                    email_status = result_obj.get("smtp_status")
                     if email:
                         results[email] = email_status
                 break

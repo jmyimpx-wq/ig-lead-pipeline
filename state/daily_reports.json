@@ -29,5 +29,21 @@
     "skipped_off_niche": 0,
     "ai_rescued_count": 0,
     "candidates_after_keyword_filters": 0
+  },
+  {
+    "date": "2026-07-12",
+    "timestamp": "2026-07-12T11:55:08.820062Z",
+    "haiku_rejections": [],
+    "sonnet_rejections": [],
+    "pushed_leads": [],
+    "hashtag_source_discovered": 51,
+    "network_source_discovered": 360,
+    "profiles_scraped_this_run": 300,
+    "profiles_actually_returned": 0,
+    "skipped_no_website": 0,
+    "skipped_competitor_or_irrelevant_vertical": 0,
+    "skipped_off_niche": 0,
+    "ai_rescued_count": 0,
+    "candidates_after_keyword_filters": 0
   }
 ]

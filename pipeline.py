@@ -39,6 +39,7 @@ import time
 import random
 import requests
 import dns.resolver
+from bs4 import BeautifulSoup
 
 import config
 
@@ -460,6 +461,93 @@ def ai_judge_lead(profile):
         return True, "AI check failed, kept by default"
 
 
+def fetch_website_text(url, timeout=10, max_chars=2500):
+    """Fetch a lead's real website and extract readable text (title, meta
+    description, visible body text) for Sonnet to actually read -- not just
+    guess from an Instagram bio. Returns None if the site is unreachable/slow/
+    broken, so callers can fall back gracefully rather than fail the lead."""
+    if not url:
+        return None
+    if not url.startswith("http"):
+        url = f"https://{url}"
+    try:
+        resp = requests.get(
+            url,
+            timeout=timeout,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; LeadResearchBot/1.0)"},
+        )
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        title = soup.title.string.strip() if soup.title and soup.title.string else ""
+        meta_desc_tag = soup.find("meta", attrs={"name": "description"})
+        meta_desc = meta_desc_tag.get("content", "").strip() if meta_desc_tag else ""
+
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+        body_text = " ".join(soup.get_text(separator=" ").split())
+
+        combined = f"TITLE: {title}\nMETA DESCRIPTION: {meta_desc}\nPAGE TEXT: {body_text}"
+        return combined[:max_chars]
+    except Exception as e:
+        print(f"  [debug] website fetch failed for {url}: {e}")
+        return None
+
+
+def ai_deep_verify_with_website(profile):
+    """Tier 2 AI check (Claude Sonnet): only called for candidates Haiku already
+    approved. Actually reads the lead's real website content and makes a final,
+    grounded judgment -- catches cases where the Instagram bio alone was too
+    generic/ambiguous to tell (e.g. bio just says 'shop online' with no detail,
+    but the website itself is clearly not a home decor/tableware business).
+    Returns (is_qualified: bool, reason: str). Fails open on error or unreachable
+    website -- never silently drops a lead just because their site was slow."""
+    if not config.ENABLE_SONNET_WEBSITE_VERIFY or not ANTHROPIC_API_KEY:
+        return True, "Sonnet website verify disabled"
+
+    website = profile.get("website")
+    website_text = fetch_website_text(website)
+    if not website_text:
+        return True, "Website unreachable, kept on Haiku's judgment"
+
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": config.SONNET_MODEL,
+                "max_tokens": 200,
+                "system": config.ICP_DESCRIPTION,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Instagram username: {profile.get('username')}\n"
+                            f"Instagram bio: {profile.get('biography') or profile.get('bio')}\n\n"
+                            f"Their actual website content (fetched directly):\n{website_text}\n\n"
+                            "Based on the REAL website content above (not just the Instagram bio), "
+                            "is this a genuinely qualified buyer lead matching the ICP? "
+                            'Respond with ONLY a JSON object: {"is_qualified": true/false, "reason": "one short sentence"}'
+                        ),
+                    }
+                ],
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        text = resp.json()["content"][0]["text"]
+        text = text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        result = json.loads(text)
+        return bool(result.get("is_qualified")), result.get("reason", "")
+    except Exception as e:
+        print(f"  [debug] Sonnet deep-verify failed for '{profile.get('username')}', keeping lead: {e}")
+        return True, "Sonnet check failed, kept by default"
+
+
 # ---------- step 4: Snov.io verification ----------
 
 def snov_get_token():
@@ -674,8 +762,25 @@ def main():
             else:
                 ai_rejected_count += 1
                 print(f"  [debug] AI rejected '{c['username']}': {reason}")
-        print(f"AI quality gate: {len(ai_passed)}/{len(candidates)} passed ({ai_rejected_count} rejected)")
+        print(f"AI quality gate (Haiku): {len(ai_passed)}/{len(candidates)} passed ({ai_rejected_count} rejected)")
         candidates = ai_passed
+
+    # Tier 2: Sonnet + real website content -- only for candidates Haiku already
+    # approved, as a final grounded check before spending SMTP/Snov.io credits
+    # and (more importantly) a scarce 100/day outreach slot on this lead.
+    if config.ENABLE_SONNET_WEBSITE_VERIFY and candidates:
+        sonnet_passed = []
+        sonnet_rejected_count = 0
+        for c in candidates:
+            profile = username_to_profile.get(c["username"], {})
+            is_qualified, reason = ai_deep_verify_with_website(profile)
+            if is_qualified:
+                sonnet_passed.append(c)
+            else:
+                sonnet_rejected_count += 1
+                print(f"  [debug] Sonnet rejected '{c['username']}' after reading website: {reason}")
+        print(f"AI quality gate (Sonnet+website): {len(sonnet_passed)}/{len(candidates)} passed ({sonnet_rejected_count} rejected)")
+        candidates = sonnet_passed
 
     # Save state now -- usernames/profiles already scraped (and Apify credits spent)
     # should never be reprocessed, even if the verification step below fails.

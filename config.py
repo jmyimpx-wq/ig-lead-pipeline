@@ -117,6 +117,13 @@ EXCLUDE_KEYWORDS = [
 ENABLE_AI_QUALITY_GATE = True
 AI_MODEL = "claude-haiku-4-5-20251001"
 
+# Second, deeper verification tier: only runs for candidates Haiku already
+# approved, and actually reads the lead's real website content (not just their
+# Instagram bio) before final confirmation. More expensive per-call than Haiku,
+# but only touches the small pool that already survived the cheap first pass.
+ENABLE_SONNET_WEBSITE_VERIFY = True
+SONNET_MODEL = "claude-sonnet-4-6"
+
 ICP_DESCRIPTION = """
 You are screening Instagram business profiles as potential wholesale buyer leads
 for Jimmy Impex, an Indian manufacturer/exporter of tableware and home decor

@@ -447,15 +447,15 @@ def crawl_seed_followers():
     with getFollowers=true. This pool refreshes on its own as new people follow
     these hubs -- it doesn't exhaust the way a fixed hashtag list does.
 
-    IMPORTANT COST OPTIMIZATION: this call already returns full profile data
-    (biography, website, category, isBusiness, publicEmail, etc.) for every
-    follower -- not just usernames. Returning the full dicts here means the
-    pipeline never needs to pay for a second, separate profile-detail scrape
-    for network-sourced candidates (unlike hashtag-sourced usernames, which only
-    come with an owner username and DO need that follow-up scrape). This roughly
-    halves Apify spend since the network source is the larger volume driver.
+    NOTE: this call returns shallow data per follower (username, name, id) --
+    NOT full bio/website/category/email, even though those keys exist in the
+    schema (empty/undefined for followers; only the seed account's own row is
+    fully populated). So the usernames from this function still need a real
+    profile-detail scrape via scrape_profiles() before filtering, same as
+    hashtag-sourced usernames -- there is no free lunch here.
 
-    Returns dict {username: profile_dict}."""
+    Returns dict {username: profile_dict} (profile_dict has shallow data only,
+    used just to extract usernames -- see .keys() usage in main())."""
     profiles_by_username = {}
     all_seeds = list(config.SEED_ACCOUNTS)
     if config.ENABLE_AI_SEED_RESEARCH:
@@ -904,42 +904,47 @@ def main():
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
-    # Source 1: hashtag search -- only gives usernames, needs a paid profile-detail scrape after
+    # Source 1: hashtag search -- only gives usernames
     hashtag_usernames = discover_usernames(hashtags)
     print(f"Hashtag source: {len(hashtag_usernames)} usernames")
 
-    # Source 2: follower-graph crawl -- already returns FULL profile data (bio, website,
-    # category, email), so these never need a second paid scrape. See crawl_seed_followers().
-    network_profiles = crawl_seed_followers()
-    print(f"Network source: {len(network_profiles)} usernames (full profile data already included)")
+    # Source 2: follower-graph crawl. CORRECTION (previous version of this code
+    # assumed this call returns full profile data for every follower and could
+    # skip a second scrape -- that was wrong. Instagram's follower-list endpoint
+    # only returns shallow data per follower (username, name); bio/website/
+    # category/email come back empty/undefined for followers even though the
+    # schema has those keys. Only the SEED account's own row is fully populated.
+    # So network-sourced usernames need the same paid profile-detail scrape as
+    # hashtag-sourced ones -- there's no shortcut here.
+    network_usernames = set(crawl_seed_followers().keys())
+    print(f"Network source: {len(network_usernames)} usernames")
 
-    new_network_profiles = {
-        u: p for u, p in network_profiles.items() if u not in seen_usernames
-    }
-    # MAX_PROFILES_PER_RUN now only caps the hashtag-sourced usernames, since those are
-    # the only ones that cost an extra Apify call -- network-sourced profiles are free
-    # to process in full since we already paid for their data during discovery.
-    new_hashtag_usernames = list(
-        (hashtag_usernames - seen_usernames) - set(new_network_profiles.keys())
-    )[: config.MAX_PROFILES_PER_RUN]
+    combined_usernames = hashtag_usernames | network_usernames
+    new_usernames = list(combined_usernames - seen_usernames)[: config.MAX_PROFILES_PER_RUN]
+    print(f"Combined: {len(combined_usernames)} usernames, {len(new_usernames)} new to scrape")
 
-    print(
-        f"Combined: {len(new_network_profiles)} network profiles (free re-use, no extra scrape) "
-        f"+ {len(new_hashtag_usernames)} hashtag usernames to scrape"
-    )
     report["hashtag_source_discovered"] = len(hashtag_usernames)
-    report["network_source_discovered"] = len(network_profiles)
-    report["network_profiles_reused"] = len(new_network_profiles)
-    report["hashtag_profiles_scraped"] = len(new_hashtag_usernames)
+    report["network_source_discovered"] = len(network_usernames)
+    report["profiles_scraped_this_run"] = len(new_usernames)
 
-    if not new_network_profiles and not new_hashtag_usernames:
+    if not new_usernames:
         print("No new usernames today, exiting.")
         save_daily_report(report)
         return
 
-    scraped_hashtag_profiles = scrape_profiles(new_hashtag_usernames) if new_hashtag_usernames else []
-    profiles = list(new_network_profiles.values()) + scraped_hashtag_profiles
+    profiles = scrape_profiles(new_usernames)
     harvest_hashtags(profiles)  # feed tomorrow's auto-expanded hashtag pool
+
+    if profiles:
+        sample = profiles[0]
+        report["debug_sample_scraped_profile"] = {
+            "username": sample.get("username"),
+            "isBusiness": sample.get("isBusiness"),
+            "category": sample.get("category"),
+            "biography": (sample.get("biography") or "")[:150],
+            "website": sample.get("website"),
+            "bioLinks": sample.get("bioLinks"),
+        }
 
     candidates = []  # [{email, username, source_url}]
     username_to_profile = {}

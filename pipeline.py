@@ -960,9 +960,16 @@ def main():
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
-    # Source 1: hashtag search -- only gives usernames
-    hashtag_usernames = discover_usernames(hashtags)
-    print(f"Hashtag source: {len(hashtag_usernames)} usernames")
+    # Source 1: hashtag search -- only gives usernames. Wrapped so that if Apify
+    # is unavailable (rate limit, monthly cap, transient error) the pipeline
+    # still runs on the network source alone instead of crashing entirely.
+    try:
+        hashtag_usernames = discover_usernames(hashtags)
+        print(f"Hashtag source: {len(hashtag_usernames)} usernames")
+    except Exception as e:
+        print(f"Hashtag discovery failed (continuing with network source only): {e}")
+        hashtag_usernames = set()
+        report["hashtag_discovery_error"] = str(e)
 
     # Source 2: follower-graph crawl. CORRECTION (previous version of this code
     # assumed this call returns full profile data for every follower and could

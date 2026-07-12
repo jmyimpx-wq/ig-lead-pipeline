@@ -25,8 +25,10 @@ of exhausting a fixed hashtag list:
 Required environment variables / GitHub Secrets:
   APIFY_TOKEN
   APIFY_HASHTAG_ACTOR      confirmed: "instaprism/instagram-hashtag-scraper"
-  APIFY_PROFILE_ACTOR      confirmed: "apidojo/instagram-user-scraper" (getFollowers=false)
-  APIFY_FOLLOWERS_ACTOR    confirmed: "apidojo/instagram-user-scraper" (getFollowers=true, same actor)
+  HIKERAPI_TOKEN           HikerAPI access key (hikerapi.com) -- replaces Apify for
+                            profile-detail lookups and follower-list discovery, at
+                            roughly 1/4 the per-profile cost ($0.0006/request vs
+                            Apify's ~$0.0023-0.0027/profile)
   SNOV_CLIENT_ID
   SNOV_CLIENT_SECRET
   SNOV_LIST_ID             the Snov.io prospect list to push valid leads into
@@ -41,6 +43,7 @@ import requests
 import dns.resolver
 from bs4 import BeautifulSoup
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import config
 
@@ -53,6 +56,8 @@ HASHTAG_TAG_REGEX = re.compile(r"#(\w{3,30})")
 EMAIL_REGEX = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
+HIKERAPI_TOKEN = os.environ.get("HIKERAPI_TOKEN", "")
+HIKERAPI_BASE = "https://api.hikerapi.com"
 
 
 def _to_api_actor_id(actor_id: str) -> str:
@@ -283,22 +288,14 @@ def ai_research_new_hashtags():
 
 
 def verify_candidate_seed_account(username):
-    """Before trusting an AI-suggested seed account, confirm via a real Apify
-    call that it actually exists and has enough followers -- AI can misname or
-    hallucinate handles, so nothing gets added on its word alone."""
+    """Before trusting an AI-suggested seed account, confirm via a real
+    HikerAPI call that it actually exists and has enough followers -- AI can
+    misname or hallucinate handles, so nothing gets added on its word alone."""
     try:
-        items = run_apify_actor(
-            APIFY_PROFILE_ACTOR,
-            {
-                "startUrls": [f"https://www.instagram.com/{username}/"],
-                "getFollowers": False,
-                "getFollowings": False,
-                "maxItems": 1,
-            },
-        )
-        if not items:
+        profile = hikerapi_get_profile(username)
+        if not profile:
             return False, 0
-        follower_count = items[0].get("followerCount", 0) or 0
+        follower_count = profile.get("followerCount", 0) or 0
         return follower_count >= config.MIN_FOLLOWERS_FOR_AI_SUGGESTED_SEED, follower_count
     except Exception as e:
         print(f"  [debug] Seed verification failed for '{username}': {e}")
@@ -442,71 +439,115 @@ def discover_usernames(hashtags):
 
 # ---------- source 2: follower-graph crawl (self-renewing, no tag list needed) ----------
 
+def hikerapi_get_profile(username):
+    """Fetch full profile data for one username via HikerAPI (~$0.0006/request,
+    vs Apify's ~$0.0023-0.0027/profile). Returns a dict normalized to match the
+    field names the rest of the pipeline already expects (biography, website,
+    isBusiness, publicEmail, category, followerCount) -- so filters/extractors
+    written for the old Apify schema keep working unchanged."""
+    try:
+        resp = requests.get(
+            f"{HIKERAPI_BASE}/v1/user/by/username",
+            params={"username": username},
+            headers={"x-access-key": HIKERAPI_TOKEN, "accept": "application/json"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        raw = resp.json()
+        if not raw or "pk" not in raw:
+            return None
+        return {
+            "id": raw.get("pk"),
+            "username": raw.get("username"),
+            "fullName": raw.get("full_name"),
+            "biography": raw.get("biography"),
+            "website": raw.get("external_url"),
+            "bioLinks": [raw.get("external_url")] if raw.get("external_url") else [],
+            "isBusiness": raw.get("is_business", False),
+            "publicEmail": raw.get("public_email"),
+            "category": raw.get("category_name") or raw.get("category"),
+            "followerCount": raw.get("follower_count"),
+            "followingCount": raw.get("following_count"),
+            "isPrivate": raw.get("is_private"),
+            "isVerified": raw.get("is_verified"),
+        }
+    except Exception as e:
+        print(f"  [debug] HikerAPI profile lookup failed for '{username}': {e}")
+        return None
+
+
 def crawl_seed_followers():
-    """Pull followers of large hub accounts using apidojo/instagram-user-scraper
-    with getFollowers=true. This pool refreshes on its own as new people follow
-    these hubs -- it doesn't exhaust the way a fixed hashtag list does.
+    """Pull followers of large hub accounts via HikerAPI. This pool refreshes
+    on its own as new people follow these hubs -- it doesn't exhaust the way a
+    fixed hashtag list does.
 
-    NOTE: this call returns shallow data per follower (username, name, id) --
-    NOT full bio/website/category/email, even though those keys exist in the
-    schema (empty/undefined for followers; only the seed account's own row is
-    fully populated). So the usernames from this function still need a real
-    profile-detail scrape via scrape_profiles() before filtering, same as
-    hashtag-sourced usernames -- there is no free lunch here.
+    NOTE: like every provider (this was also true of the previous Apify setup),
+    follower-list data is shallow -- username/name/id only, not bio/website.
+    Those usernames still need hikerapi_get_profile() before filtering.
 
-    Returns dict {username: profile_dict} (profile_dict has shallow data only,
-    used just to extract usernames -- see .keys() usage in main())."""
-    profiles_by_username = {}
+    Returns dict {username: {}} (empty dicts -- just used for the username keys,
+    see .keys() usage in main())."""
+    usernames_found = {}
     all_seeds = list(config.SEED_ACCOUNTS)
     if config.ENABLE_AI_SEED_RESEARCH:
         all_seeds += load_ai_verified_seeds()
+
     for seed in all_seeds:
-        run_input = {
-            "startUrls": [f"https://www.instagram.com/{seed}/"],
-            "getFollowers": True,
-            "getFollowings": False,
-            "maxItems": config.MAX_FOLLOWERS_PER_SEED_PER_RUN,
-        }
+        seed_profile = hikerapi_get_profile(seed)
+        if not seed_profile or not seed_profile.get("id"):
+            print(f"  [debug] couldn't resolve seed '{seed}' to a user id, skipping")
+            continue
+        user_id = seed_profile["id"]
+
+        collected = 0
+        end_cursor = None
         try:
-            items = run_apify_actor(APIFY_FOLLOWERS_ACTOR, run_input)
-            print(f"  [debug] follower actor returned {len(items)} raw items for seed '{seed}'")
-            for item in items:
-                uname = item.get("username")
-                if uname and uname.lower() != seed.lower():  # skip the seed account itself
-                    profiles_by_username[uname] = item  # full profile, not just the username
-        except (requests.RequestException, RuntimeError, TimeoutError) as e:
-            print(f"Follower crawl failed for seed '{seed}': {e}")
-    return profiles_by_username
+            while collected < config.MAX_FOLLOWERS_PER_SEED_PER_RUN:
+                params = {"user_id": user_id}
+                if end_cursor:
+                    params["end_cursor"] = end_cursor
+                resp = requests.get(
+                    f"{HIKERAPI_BASE}/gql/user/followers/chunk",
+                    params=params,
+                    headers={"x-access-key": HIKERAPI_TOKEN, "accept": "application/json"},
+                    timeout=20,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                chunk = data[0] if isinstance(data, list) and len(data) > 0 else []
+                end_cursor = data[1] if isinstance(data, list) and len(data) > 1 else None
+                if not chunk:
+                    break
+                for follower in chunk:
+                    uname = follower.get("username")
+                    if uname:
+                        usernames_found[uname] = {}
+                collected += len(chunk)
+                if not end_cursor:
+                    break
+            print(f"  [debug] HikerAPI followers: got {collected} for seed '{seed}'")
+        except Exception as e:
+            print(f"  [debug] HikerAPI follower crawl failed for seed '{seed}': {e}")
+
+    return usernames_found
 
 
 # ---------- step 2: profile / bio scraping ----------
 
-def scrape_profiles(usernames, batch_size=100):
-    """Run apidojo/instagram-user-scraper on usernames (profile-details mode:
-    getFollowers/getFollowings both false), return raw profile dicts.
-    Schema confirmed: {"startUrls": [...], "getFollowers": false, "getFollowings": false, "maxItems": N}
-
-    Sent in batches (default 100/call) rather than one giant request -- a single
-    call with 1500 URLs returned 0 results in testing (likely an actor-side
-    limit on request size or per-run behavior at that scale), while smaller
-    batches are the pattern that's been reliable so far."""
-    all_profiles = []
+def scrape_profiles(usernames, max_workers=15):
+    """Fetch full profile data for each username via HikerAPI, in parallel
+    (pay-per-request pricing means no batching penalty like Apify had --
+    just fire many concurrent lookups). Skips (doesn't crash) on individual
+    failures so one bad username never kills the whole run."""
     usernames = list(usernames)
-    for i in range(0, len(usernames), batch_size):
-        batch = usernames[i : i + batch_size]
-        start_urls = [f"https://www.instagram.com/{u}/" for u in batch]
-        run_input = {
-            "startUrls": start_urls,
-            "getFollowers": False,
-            "getFollowings": False,
-            "maxItems": len(start_urls),
-        }
-        try:
-            batch_profiles = run_apify_actor(APIFY_PROFILE_ACTOR, run_input, max_wait=1200)
-            print(f"  [debug] profile scrape batch {i}-{i+len(batch)}: got {len(batch_profiles)} profiles back")
-            all_profiles.extend(batch_profiles)
-        except Exception as e:
-            print(f"  [debug] profile scrape batch {i}-{i+len(batch)} failed, skipping: {e}")
+    all_profiles = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(hikerapi_get_profile, u): u for u in usernames}
+        for future in as_completed(futures):
+            profile = future.result()
+            if profile:
+                all_profiles.append(profile)
+    print(f"  [debug] HikerAPI profile scrape: {len(all_profiles)}/{len(usernames)} profiles returned")
     return all_profiles
 
 

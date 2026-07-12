@@ -41,7 +41,7 @@ HASHTAG_RESULTS_PER_TAG = 80
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.
-MAX_PROFILES_PER_RUN = 300  # TEMP: reduced for a fast test of the batching fix, raise back to 1500 after confirming
+MAX_PROFILES_PER_RUN = 25  # TEMP: tiny batch to validate the HikerAPI migration before scaling back up
 
 # Free-provider domains to exclude if you only want business-domain emails.
 # Set to empty set [] if you want to keep gmail/yahoo/outlook leads too

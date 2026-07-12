@@ -138,3 +138,27 @@ console.anthropic.com -- a separate developer API key, not your Claude.ai
 subscription). If unset, both tiers are skipped automatically and the
 pipeline falls back to keyword filtering only. Toggle either tier off in
 `config.py` via `ENABLE_AI_QUALITY_GATE` / `ENABLE_SONNET_WEBSITE_VERIFY`.
+
+## 7. Full automation: AI research + rescue pass (#3/#4/#5)
+
+- **Auto hashtag research (#3)**: Once a week (`config.AI_RESEARCH_INTERVAL_DAYS`),
+  Sonnet -- with Anthropic's real hosted web search tool enabled -- proposes
+  15-20 new hashtags for the niche, avoiding ones already in use. Saved to
+  `state/ai_suggested_hashtags.json` and blended into the daily hashtag pool
+  automatically.
+- **Auto seed-account research (#4)**: Same weekly cycle, Sonnet proposes new
+  B2B trade-show/wholesale-marketplace Instagram accounts. Every suggestion is
+  verified via a real Apify profile lookup (`verify_candidate_seed_account`)
+  before being trusted -- checks the account actually exists and has at least
+  `config.MIN_FOLLOWERS_FOR_AI_SUGGESTED_SEED` followers. Only verified accounts
+  get saved to `state/ai_verified_seeds.json` and used as crawl seeds.
+- **AI rescue pass (#5)**: profiles that failed ONLY the keyword-relevance
+  check (not the website or competitor checks) get a second look from Haiku
+  before being discarded -- catches genuine leads whose bio wording just
+  didn't match the keyword list.
+
+All three are on by default (`ENABLE_AI_HASHTAG_RESEARCH`,
+`ENABLE_AI_SEED_RESEARCH`, `ENABLE_AI_RESCUE_PASS` in `config.py`) and require
+`ANTHROPIC_API_KEY`. Weekly research calls cost roughly $0.05-0.20/week given
+web search + Sonnet pricing; the rescue pass adds Haiku calls only for the
+(usually small) off-niche pile, a few cents/day at most.

@@ -124,6 +124,26 @@ AI_MODEL = "claude-haiku-4-5-20251001"
 ENABLE_SONNET_WEBSITE_VERIFY = True
 SONNET_MODEL = "claude-sonnet-4-6"
 
+# ---------------------------------------------------------------------------
+# AI rescue pass (Tier 0, runs BEFORE the keyword filter's rejection is final):
+# profiles that failed ONLY the niche-relevance keyword match (not the website
+# or competitor checks, which are stronger/cheaper signals) get a second look
+# from Haiku, in case the keyword list was just too narrow for a genuinely
+# qualified lead's bio wording.
+ENABLE_AI_RESCUE_PASS = True
+
+# ---------------------------------------------------------------------------
+# AI research automation: Sonnet (with real web search) periodically proposes
+# new hashtags and new seed accounts on its own, so the hashtag/seed pool
+# keeps growing without manual curation. Runs on an interval (not every day)
+# to control cost. Seed account suggestions are always verified via a real
+# Apify profile lookup before being trusted -- AI can name accounts that don't
+# exist or misremember follower counts, so nothing gets added on AI's word alone.
+ENABLE_AI_HASHTAG_RESEARCH = True
+ENABLE_AI_SEED_RESEARCH = True
+AI_RESEARCH_INTERVAL_DAYS = 7
+MIN_FOLLOWERS_FOR_AI_SUGGESTED_SEED = 20000  # sanity floor once verified via Apify
+
 ICP_DESCRIPTION = """
 You are screening Instagram business profiles as potential wholesale buyer leads
 for Jimmy Impex, an Indian manufacturer/exporter of tableware and home decor

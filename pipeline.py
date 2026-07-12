@@ -175,6 +175,205 @@ def save_discovered_hashtags(freq_map):
         json.dump(freq_map, f, indent=2)
 
 
+AI_SUGGESTED_HASHTAGS_FILE = os.path.join(STATE_DIR, "ai_suggested_hashtags.json")
+AI_VERIFIED_SEEDS_FILE = os.path.join(STATE_DIR, "ai_verified_seeds.json")
+AI_RESEARCH_LOG_FILE = os.path.join(STATE_DIR, "ai_research_log.json")
+
+
+def call_claude_with_search(system_prompt, user_prompt, model=None, max_tokens=1500):
+    """Call Claude with Anthropic's real hosted web_search tool enabled, so
+    hashtag/seed research is grounded in an actual live search rather than
+    the model's static training knowledge (which can be stale or, worse,
+    hallucinate account handles that don't exist)."""
+    model = model or config.SONNET_MODEL
+    resp = requests.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": max_tokens,
+            "system": system_prompt,
+            "messages": [{"role": "user", "content": user_prompt}],
+            "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+        },
+        timeout=90,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    text_parts = [b["text"] for b in data.get("content", []) if b.get("type") == "text"]
+    return "\n".join(text_parts)
+
+
+def extract_json_array(text):
+    """Sonnet's response may include prose around the JSON array (especially
+    with web search results woven in) -- pull out just the array."""
+    match = re.search(r"\[.*\]", text, re.DOTALL)
+    if not match:
+        return []
+    try:
+        return json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return []
+
+
+def should_run_ai_research():
+    """AI research (hashtag + seed discovery) runs on an interval, not every
+    day, to control API cost. Returns True if enough days have passed since
+    the last run (or it's never run before)."""
+    if os.path.exists(AI_RESEARCH_LOG_FILE):
+        try:
+            with open(AI_RESEARCH_LOG_FILE) as f:
+                log = json.load(f)
+            last_run = datetime.fromisoformat(log["last_run"].replace("Z", ""))
+            days_since = (datetime.utcnow() - last_run).days
+            return days_since >= config.AI_RESEARCH_INTERVAL_DAYS
+        except Exception:
+            return True
+    return True
+
+
+def mark_ai_research_ran():
+    os.makedirs(STATE_DIR, exist_ok=True)
+    with open(AI_RESEARCH_LOG_FILE, "w") as f:
+        json.dump({"last_run": datetime.utcnow().isoformat() + "Z"}, f, indent=2)
+
+
+def ai_research_new_hashtags():
+    """Ask Sonnet (with real web search) to propose new hashtags for the niche,
+    given the current pool, so the hashtag list keeps growing on its own."""
+    existing = set()
+    for tags in config.VERTICALS.values():
+        existing.update(tags)
+    if os.path.exists(AI_SUGGESTED_HASHTAGS_FILE):
+        try:
+            with open(AI_SUGGESTED_HASHTAGS_FILE) as f:
+                existing.update(json.load(f))
+        except Exception:
+            pass
+
+    prompt = (
+        f"{config.ICP_DESCRIPTION}\n\n"
+        f"Current Instagram hashtags already in use: {sorted(existing)}\n\n"
+        "Search the web to find 15-20 NEW, currently active Instagram hashtags "
+        "(not already in the list above) that people in this exact niche "
+        "(tabletop/tableware retailers, interior designers, home decor boutiques "
+        "with chinoiserie/grandmillennial/toile aesthetics, wedding/floral/event "
+        "stylists) actually use today. Prefer specific, active hashtags over "
+        "generic ones. Respond with ONLY a JSON array of lowercase hashtag "
+        'strings without the # symbol, e.g. ["hashtag1", "hashtag2"].'
+    )
+    try:
+        text = call_claude_with_search(config.ICP_DESCRIPTION, prompt)
+        new_tags = [t.lower().strip() for t in extract_json_array(text) if isinstance(t, str)]
+        new_tags = [t for t in new_tags if t and t not in existing]
+        print(f"  [debug] AI hashtag research suggested {len(new_tags)} new tags: {new_tags}")
+        if new_tags:
+            os.makedirs(STATE_DIR, exist_ok=True)
+            all_suggested = sorted(existing.union(new_tags) - {
+                t for tags in config.VERTICALS.values() for t in tags
+            })
+            with open(AI_SUGGESTED_HASHTAGS_FILE, "w") as f:
+                json.dump(all_suggested, f, indent=2)
+    except Exception as e:
+        print(f"  [debug] AI hashtag research failed (non-fatal, skipping this cycle): {e}")
+
+
+def verify_candidate_seed_account(username):
+    """Before trusting an AI-suggested seed account, confirm via a real Apify
+    call that it actually exists and has enough followers -- AI can misname or
+    hallucinate handles, so nothing gets added on its word alone."""
+    try:
+        items = run_apify_actor(
+            APIFY_PROFILE_ACTOR,
+            {
+                "startUrls": [f"https://www.instagram.com/{username}/"],
+                "getFollowers": False,
+                "getFollowings": False,
+                "maxItems": 1,
+            },
+        )
+        if not items:
+            return False, 0
+        follower_count = items[0].get("followerCount", 0) or 0
+        return follower_count >= config.MIN_FOLLOWERS_FOR_AI_SUGGESTED_SEED, follower_count
+    except Exception as e:
+        print(f"  [debug] Seed verification failed for '{username}': {e}")
+        return False, 0
+
+
+def ai_research_new_seed_accounts():
+    """Ask Sonnet (with real web search) to propose new B2B hub/trade-show
+    Instagram accounts for the niche, then verify each candidate is real via
+    Apify before trusting it as a seed account."""
+    existing = set(a.lower() for a in config.SEED_ACCOUNTS)
+    if os.path.exists(AI_VERIFIED_SEEDS_FILE):
+        try:
+            with open(AI_VERIFIED_SEEDS_FILE) as f:
+                existing.update(a.lower() for a in json.load(f))
+        except Exception:
+            pass
+
+    prompt = (
+        f"{config.ICP_DESCRIPTION}\n\n"
+        f"Current seed accounts already in use: {sorted(existing)}\n\n"
+        "Search the web to find 5-8 NEW large B2B trade show, wholesale "
+        "marketplace, or industry association Instagram accounts (not already "
+        "in the list above) whose followers would mostly be genuine buyers in "
+        "this niche -- interior designers, home decor/tableware retailers, "
+        "gift shop owners, wedding/floral industry professionals. Only suggest "
+        "accounts you can find real evidence for (an official website, a "
+        "verifiable Instagram handle). Respond with ONLY a JSON array of "
+        'Instagram usernames (no @ symbol), e.g. ["highpointmarket", "ny_now"].'
+    )
+    try:
+        text = call_claude_with_search(config.ICP_DESCRIPTION, prompt)
+        candidates = [
+            u.lower().strip().lstrip("@") for u in extract_json_array(text) if isinstance(u, str)
+        ]
+        candidates = [u for u in candidates if u and u not in existing]
+        print(f"  [debug] AI seed research suggested {len(candidates)} candidates: {candidates}")
+
+        verified = []
+        for uname in candidates:
+            is_valid, follower_count = verify_candidate_seed_account(uname)
+            print(f"  [debug] verifying seed candidate '{uname}': {follower_count} followers, valid={is_valid}")
+            if is_valid:
+                verified.append(uname)
+
+        print(f"  [debug] {len(verified)}/{len(candidates)} AI-suggested seeds passed verification")
+        if verified:
+            os.makedirs(STATE_DIR, exist_ok=True)
+            all_verified = sorted(existing.union(verified) - set(a.lower() for a in config.SEED_ACCOUNTS))
+            with open(AI_VERIFIED_SEEDS_FILE, "w") as f:
+                json.dump(all_verified, f, indent=2)
+    except Exception as e:
+        print(f"  [debug] AI seed research failed (non-fatal, skipping this cycle): {e}")
+
+
+def load_ai_suggested_hashtags():
+    if os.path.exists(AI_SUGGESTED_HASHTAGS_FILE):
+        try:
+            with open(AI_SUGGESTED_HASHTAGS_FILE) as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+
+def load_ai_verified_seeds():
+    if os.path.exists(AI_VERIFIED_SEEDS_FILE):
+        try:
+            with open(AI_VERIFIED_SEEDS_FILE) as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+
 def build_today_hashtags():
     """Blend the fixed seed pool with auto-discovered tags so the pool keeps growing."""
     pool = []
@@ -191,6 +390,10 @@ def build_today_hashtags():
         ]
         adopted.sort(key=lambda t: discovered[t], reverse=True)
         pool.extend(adopted[: config.MAX_AUTO_HASHTAGS_TO_ADD_PER_RUN])
+
+    # Sonnet-researched hashtags (see ai_research_new_hashtags), refreshed weekly
+    if config.ENABLE_AI_HASHTAG_RESEARCH:
+        pool.extend(load_ai_suggested_hashtags())
 
     pool = list(dict.fromkeys(pool))  # dedupe, keep order
     random.shuffle(pool)
@@ -254,7 +457,10 @@ def crawl_seed_followers():
 
     Returns dict {username: profile_dict}."""
     profiles_by_username = {}
-    for seed in config.SEED_ACCOUNTS:
+    all_seeds = list(config.SEED_ACCOUNTS)
+    if config.ENABLE_AI_SEED_RESEARCH:
+        all_seeds += load_ai_verified_seeds()
+    for seed in all_seeds:
         run_input = {
             "startUrls": [f"https://www.instagram.com/{seed}/"],
             "getFollowers": True,
@@ -684,6 +890,17 @@ def main():
         "pushed_leads": [],
     }
 
+    # Weekly AI research: Sonnet (with real web search) proposes new hashtags and
+    # new seed accounts on its own. Runs on an interval, not every day, to control
+    # API cost -- see config.AI_RESEARCH_INTERVAL_DAYS.
+    if ANTHROPIC_API_KEY and should_run_ai_research():
+        print("Running weekly AI research (new hashtags + seed accounts)...")
+        if config.ENABLE_AI_HASHTAG_RESEARCH:
+            ai_research_new_hashtags()
+        if config.ENABLE_AI_SEED_RESEARCH:
+            ai_research_new_seed_accounts()
+        mark_ai_research_ran()
+
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
@@ -726,6 +943,7 @@ def main():
 
     candidates = []  # [{email, username, source_url}]
     username_to_profile = {}
+    rescue_pool = []  # profiles that failed ONLY the relevance check -- eligible for AI rescue pass
     skipped_competitor = 0
     skipped_irrelevant = 0
     skipped_no_website = 0
@@ -762,6 +980,11 @@ def main():
         # (interior design, wedding/floral/event)?
         if not is_relevant_b2b_lead(profile):
             skipped_irrelevant += 1
+            # This profile passed the stronger signals (website + not a competitor)
+            # and only missed on keyword wording -- worth a second look from AI
+            # rather than an automatic reject. See the rescue pass below.
+            if config.ENABLE_AI_RESCUE_PASS:
+                rescue_pool.append(profile)
             continue
 
         email = extract_email(profile)
@@ -783,6 +1006,30 @@ def main():
     report["skipped_no_website"] = skipped_no_website
     report["skipped_competitor_or_irrelevant_vertical"] = skipped_competitor
     report["skipped_off_niche"] = skipped_irrelevant
+
+    # AI rescue pass (Tier 0): give Haiku a second look at profiles that only
+    # failed the keyword-relevance check, in case a genuine lead's bio just
+    # didn't happen to use our exact keyword list.
+    rescued_count = 0
+    if config.ENABLE_AI_RESCUE_PASS and rescue_pool and ANTHROPIC_API_KEY:
+        for profile in rescue_pool:
+            is_qualified, reason = ai_judge_lead(profile)
+            if is_qualified:
+                email = extract_email(profile)
+                if email and prefilter(email, seen_emails):
+                    uname = profile.get("username")
+                    candidates.append(
+                        {
+                            "email": email,
+                            "username": uname,
+                            "source_url": f"https://instagram.com/{uname}" if uname else "",
+                        }
+                    )
+                    username_to_profile[uname] = profile
+                    rescued_count += 1
+                    print(f"  [debug] rescued '{uname}' (failed keyword match, AI confirmed qualified): {reason}")
+        print(f"AI rescue pass: {rescued_count}/{len(rescue_pool)} rescued from the off-niche pile")
+    report["ai_rescued_count"] = rescued_count
     report["candidates_after_keyword_filters"] = len(candidates)
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")

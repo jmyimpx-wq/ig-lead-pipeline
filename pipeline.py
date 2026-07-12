@@ -481,18 +481,33 @@ def crawl_seed_followers():
 
 # ---------- step 2: profile / bio scraping ----------
 
-def scrape_profiles(usernames):
-    """Run apidojo/instagram-user-scraper on a batch of usernames (profile-details mode:
+def scrape_profiles(usernames, batch_size=100):
+    """Run apidojo/instagram-user-scraper on usernames (profile-details mode:
     getFollowers/getFollowings both false), return raw profile dicts.
-    Schema confirmed: {"startUrls": [...], "getFollowers": false, "getFollowings": false, "maxItems": N}"""
-    start_urls = [f"https://www.instagram.com/{u}/" for u in usernames]
-    run_input = {
-        "startUrls": start_urls,
-        "getFollowers": False,
-        "getFollowings": False,
-        "maxItems": len(start_urls),
-    }
-    return run_apify_actor(APIFY_PROFILE_ACTOR, run_input, max_wait=3600)
+    Schema confirmed: {"startUrls": [...], "getFollowers": false, "getFollowings": false, "maxItems": N}
+
+    Sent in batches (default 100/call) rather than one giant request -- a single
+    call with 1500 URLs returned 0 results in testing (likely an actor-side
+    limit on request size or per-run behavior at that scale), while smaller
+    batches are the pattern that's been reliable so far."""
+    all_profiles = []
+    usernames = list(usernames)
+    for i in range(0, len(usernames), batch_size):
+        batch = usernames[i : i + batch_size]
+        start_urls = [f"https://www.instagram.com/{u}/" for u in batch]
+        run_input = {
+            "startUrls": start_urls,
+            "getFollowers": False,
+            "getFollowings": False,
+            "maxItems": len(start_urls),
+        }
+        try:
+            batch_profiles = run_apify_actor(APIFY_PROFILE_ACTOR, run_input, max_wait=1200)
+            print(f"  [debug] profile scrape batch {i}-{i+len(batch)}: got {len(batch_profiles)} profiles back")
+            all_profiles.extend(batch_profiles)
+        except Exception as e:
+            print(f"  [debug] profile scrape batch {i}-{i+len(batch)} failed, skipping: {e}")
+    return all_profiles
 
 
 def extract_email(profile):
@@ -933,6 +948,8 @@ def main():
         return
 
     profiles = scrape_profiles(new_usernames)
+    print(f"  [debug] scrape_profiles returned {len(profiles)} total profiles (requested {len(new_usernames)} usernames)")
+    report["profiles_actually_returned"] = len(profiles)
     harvest_hashtags(profiles)  # feed tomorrow's auto-expanded hashtag pool
 
     if profiles:

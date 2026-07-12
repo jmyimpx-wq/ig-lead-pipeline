@@ -120,3 +120,21 @@ numbers instead of estimates.
   https://snov.io/api before relying on this in production — API responses
   and field names shown here were accurate as of this build but Snov.io (like
   any SaaS) updates its API periodically.
+
+## 6. Two-tier AI verification (Claude Haiku + Sonnet)
+
+On top of the keyword filters, candidates go through two AI checks:
+- **Tier 1 — Haiku**: cheap, fast pass on the Instagram bio/category text
+  against the real ICP (`config.ICP_DESCRIPTION`). Filters clear rejects
+  before anything more expensive runs.
+- **Tier 2 — Sonnet + real website**: only for candidates Haiku already
+  approved. The pipeline fetches the lead's actual website and has Sonnet
+  read the genuine page content (title, meta description, body text) before
+  final approval -- catches cases where the bio alone was too vague to judge.
+
+Both tiers fail open (never silently drop a lead) on API errors or an
+unreachable website. Requires an `ANTHROPIC_API_KEY` secret (from
+console.anthropic.com -- a separate developer API key, not your Claude.ai
+subscription). If unset, both tiers are skipped automatically and the
+pipeline falls back to keyword filtering only. Toggle either tier off in
+`config.py` via `ENABLE_AI_QUALITY_GATE` / `ENABLE_SONNET_WEBSITE_VERIFY`.

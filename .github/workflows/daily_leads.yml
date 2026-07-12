@@ -27,8 +27,6 @@ jobs:
       - name: Run pipeline
         env:
           PYTHONUNBUFFERED: "1"
-          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
-          APIFY_HASHTAG_ACTOR: ${{ secrets.APIFY_HASHTAG_ACTOR }}
           HIKERAPI_TOKEN: ${{ secrets.HIKERAPI_TOKEN }}
           SNOV_CLIENT_ID: ${{ secrets.SNOV_CLIENT_ID }}
           SNOV_CLIENT_SECRET: ${{ secrets.SNOV_CLIENT_SECRET }}

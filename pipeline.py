@@ -2,8 +2,8 @@
 Daily Instagram -> Snov.io lead pipeline.
 
 Flow:
-  1. Discover profiles via hashtags (Apify Instagram Hashtag/Search Scraper)
-  2. Pull bio/email/contact for new usernames (Apify Instagram Profile Scraper)
+  1. Discover profiles via hashtags and follower-graph crawl (HikerAPI)
+  2. Pull full bio/email/website/contact for new usernames (HikerAPI)
   3. FREE pre-filter (regex + MX record check + dedupe) -- this is what saves
      Snov.io credits, since we never send garbage to their paid verifier
   4. Send survivors to Snov.io Email Verifier API (this is where credits get spent)
@@ -23,12 +23,11 @@ of exhausting a fixed hashtag list:
             refreshes on its own without you managing a tag list at all.
 
 Required environment variables / GitHub Secrets:
-  APIFY_TOKEN
-  APIFY_HASHTAG_ACTOR      confirmed: "instaprism/instagram-hashtag-scraper"
-  HIKERAPI_TOKEN           HikerAPI access key (hikerapi.com) -- replaces Apify for
-                            profile-detail lookups and follower-list discovery, at
-                            roughly 1/4 the per-profile cost ($0.0006/request vs
-                            Apify's ~$0.0023-0.0027/profile)
+  HIKERAPI_TOKEN           HikerAPI access key (hikerapi.com) -- handles ALL
+                            discovery and profile lookups (hashtag search,
+                            follower crawl, profile detail). ~$0.0006/request,
+                            pay-as-you-go, no monthly minimum. Apify has been
+                            fully retired from this pipeline as of this version.
   SNOV_CLIENT_ID
   SNOV_CLIENT_SECRET
   SNOV_LIST_ID             the Snov.io prospect list to push valid leads into
@@ -55,78 +54,18 @@ HASHTAG_TAG_REGEX = re.compile(r"#(\w{3,30})")
 
 EMAIL_REGEX = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
-APIFY_TOKEN = os.environ["APIFY_TOKEN"]
+# Apify has been fully retired from this pipeline -- HikerAPI now handles
+# hashtag discovery, follower discovery, and profile-detail lookups (roughly
+# 4x cheaper per profile, and removes the Apify-monthly-usage-cap crash risk
+# seen in earlier runs).
 HIKERAPI_TOKEN = os.environ.get("HIKERAPI_TOKEN", "")
 HIKERAPI_BASE = "https://api.hikerapi.com"
 
-
-def _to_api_actor_id(actor_id: str) -> str:
-    """Apify's REST API requires 'username~actor-name' in URLs, not 'username/actor-name'
-    (the slash form is only used in the Store UI / task JSON). Convert automatically so
-    secrets can be stored in either format without breaking API calls."""
-    return actor_id.replace("/", "~")
-
-
-APIFY_HASHTAG_ACTOR = _to_api_actor_id(
-    os.environ.get("APIFY_HASHTAG_ACTOR", "apify/instagram-hashtag-scraper")
-)
-APIFY_PROFILE_ACTOR = _to_api_actor_id(
-    os.environ.get("APIFY_PROFILE_ACTOR", "apidojo/instagram-user-scraper")
-)
-APIFY_FOLLOWERS_ACTOR = _to_api_actor_id(
-    os.environ.get("APIFY_FOLLOWERS_ACTOR", "apidojo/instagram-user-scraper")
-)
 SNOV_CLIENT_ID = os.environ["SNOV_CLIENT_ID"]
 SNOV_CLIENT_SECRET = os.environ["SNOV_CLIENT_SECRET"]
 SNOV_LIST_ID = os.environ["SNOV_LIST_ID"]
 
-APIFY_BASE = "https://api.apify.com/v2"
 SNOV_BASE = "https://api.snov.io"
-
-
-def run_apify_actor(actor_id, run_input, poll_interval=5, max_wait=1800):
-    """Start an Apify actor run asynchronously and poll for completion, instead of using
-    the synchronous run-sync-get-dataset-items endpoint. The sync endpoint holds one HTTP
-    connection open for the entire run duration, which gets killed by intermediate proxies
-    on longer runs (observed: RemoteDisconnected around the ~5 minute mark). This async
-    start+poll+fetch pattern avoids that entirely."""
-    start_resp = requests.post(
-        f"{APIFY_BASE}/acts/{actor_id}/runs",
-        params={"token": APIFY_TOKEN},
-        json=run_input,
-        timeout=30,
-    )
-    start_resp.raise_for_status()
-    run_id = start_resp.json()["data"]["id"]
-
-    started_at = time.time()
-    while time.time() - started_at < max_wait:
-        status_resp = requests.get(
-            f"{APIFY_BASE}/actor-runs/{run_id}",
-            params={"token": APIFY_TOKEN},
-            timeout=30,
-        )
-        status_resp.raise_for_status()
-        run_data = status_resp.json()["data"]
-        status = run_data["status"]
-
-        if status == "SUCCEEDED":
-            dataset_id = run_data["defaultDatasetId"]
-            print(f"  [debug] run {run_id} succeeded, dataset {dataset_id}")
-            items_resp = requests.get(
-                f"{APIFY_BASE}/datasets/{dataset_id}/items",
-                params={"token": APIFY_TOKEN, "format": "json", "clean": "true"},
-                timeout=60,
-            )
-            items_resp.raise_for_status()
-            return items_resp.json()
-
-        if status in ("FAILED", "ABORTED", "TIMED-OUT"):
-            raise RuntimeError(f"Apify run {run_id} ({actor_id}) ended with status {status}")
-
-        time.sleep(poll_interval)
-
-    raise TimeoutError(f"Apify run {run_id} ({actor_id}) did not finish within {max_wait}s")
 
 
 # ---------- state helpers ----------
@@ -305,7 +244,7 @@ def verify_candidate_seed_account(username):
 def ai_research_new_seed_accounts():
     """Ask Sonnet (with real web search) to propose new B2B hub/trade-show
     Instagram accounts for the niche, then verify each candidate is real via
-    Apify before trusting it as a seed account."""
+    HikerAPI before trusting it as a seed account."""
     existing = set(a.lower() for a in config.SEED_ACCOUNTS)
     if os.path.exists(AI_VERIFIED_SEEDS_FILE):
         try:
@@ -416,24 +355,61 @@ def harvest_hashtags(profiles):
     save_discovered_hashtags(freq_map)
 
 
-def discover_usernames(hashtags):
-    """Run the Apify hashtag scraper and collect owner usernames.
-    Schema confirmed for the official apify/instagram-hashtag-scraper (Maintained by Apify):
-    {"hashtags": [...], "keywordSearch": false, "resultsLimit": N}"""
-    run_input = {
-        "hashtags": hashtags,
-        "keywordSearch": False,
-        "resultsLimit": config.HASHTAG_RESULTS_PER_TAG,
-    }
-    items = run_apify_actor(APIFY_HASHTAG_ACTOR, run_input)
-    print(f"  [debug] hashtag actor returned {len(items)} raw items")
-    if items:
-        print(f"  [debug] sample item keys: {list(items[0].keys())}")
+def hikerapi_hashtag_medias(hashtag_name, count=100):
+    """Fetch recent/top posts for a hashtag via HikerAPI and extract owner
+    usernames. Replaces the Apify hashtag actor entirely -- one less provider,
+    and removes the Apify-monthly-limit crash risk seen earlier."""
     usernames = set()
-    for item in items:
-        uname = item.get("ownerUsername") or item.get("username")
-        if uname:
-            usernames.add(uname)
+    try:
+        resp = requests.get(
+            f"{HIKERAPI_BASE}/v2/hashtag/medias/top",
+            params={"name": hashtag_name},
+            headers={"x-access-key": HIKERAPI_TOKEN, "accept": "application/json"},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        items = data.get("response", {}).get("sections", []) if isinstance(data, dict) else data
+        # Defensive parsing -- hashtag media responses can nest the owner under
+        # a few different keys depending on API version; try the common ones.
+        def extract_owner(obj):
+            if not isinstance(obj, dict):
+                return None
+            for path in (("user", "username"), ("owner", "username")):
+                node = obj
+                for key in path:
+                    node = node.get(key) if isinstance(node, dict) else None
+                    if node is None:
+                        break
+                if isinstance(node, str):
+                    return node
+            return None
+
+        def walk(obj):
+            if isinstance(obj, dict):
+                uname = extract_owner(obj)
+                if uname:
+                    usernames.add(uname)
+                for v in obj.values():
+                    walk(v)
+            elif isinstance(obj, list):
+                for v in obj:
+                    walk(v)
+
+        walk(items)
+    except Exception as e:
+        print(f"  [debug] HikerAPI hashtag lookup failed for '#{hashtag_name}': {e}")
+    return usernames
+
+
+def discover_usernames(hashtags):
+    """Discover usernames by searching hashtags via HikerAPI (replaces the
+    previous Apify hashtag actor)."""
+    usernames = set()
+    for tag in hashtags:
+        tag_usernames = hikerapi_hashtag_medias(tag)
+        print(f"  [debug] hashtag '#{tag}': {len(tag_usernames)} usernames")
+        usernames.update(tag_usernames)
     return usernames
 
 
@@ -960,7 +936,7 @@ def main():
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
-    # Source 1: hashtag search -- only gives usernames. Wrapped so that if Apify
+    # Source 1: hashtag search -- only gives usernames. Wrapped so that if HikerAPI
     # is unavailable (rate limit, monthly cap, transient error) the pipeline
     # still runs on the network source alone instead of crashing entirely.
     try:
@@ -1140,7 +1116,7 @@ def main():
         print(f"AI quality gate (Sonnet+website): {len(sonnet_passed)}/{len(candidates)} passed ({sonnet_rejected_count} rejected)")
         candidates = sonnet_passed
 
-    # Save state now -- usernames/profiles already scraped (and Apify credits spent)
+    # Save state now -- usernames/profiles already scraped (and HikerAPI credits spent)
     # should never be reprocessed, even if the verification step below fails.
     save_json_set(SEEN_USERNAMES_FILE, seen_usernames)
 

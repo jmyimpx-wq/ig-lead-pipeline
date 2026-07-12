@@ -41,10 +41,7 @@ HASHTAG_RESULTS_PER_TAG = 80
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.
-MAX_PROFILES_PER_RUN = 1500  # NOTE: as of the cost-optimization update, this only caps
-# hashtag-sourced usernames (which need a paid profile-detail scrape). Network-sourced
-# profiles (from crawl_seed_followers) are now processed in full at no extra Apify cost,
-# since that call already returns complete profile data.
+MAX_PROFILES_PER_RUN = 300  # TEMP: reduced for a fast test of the batching fix, raise back to 1500 after confirming
 
 # Free-provider domains to exclude if you only want business-domain emails.
 # Set to empty set [] if you want to keep gmail/yahoo/outlook leads too

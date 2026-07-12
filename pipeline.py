@@ -220,11 +220,17 @@ def crawl_seed_followers():
     """Pull followers of large hub accounts using apidojo/instagram-user-scraper
     with getFollowers=true. This pool refreshes on its own as new people follow
     these hubs -- it doesn't exhaust the way a fixed hashtag list does.
-    Schema confirmed via real test run: {"startUrls": [...], "getFollowers": bool,
-    "getFollowings": bool, "maxItems": N}. Output is a flat list where item 0 is the
-    seed account's own profile and the rest are followers, each with "username" directly
-    on the item (no nesting)."""
-    usernames = set()
+
+    IMPORTANT COST OPTIMIZATION: this call already returns full profile data
+    (biography, website, category, isBusiness, publicEmail, etc.) for every
+    follower -- not just usernames. Returning the full dicts here means the
+    pipeline never needs to pay for a second, separate profile-detail scrape
+    for network-sourced candidates (unlike hashtag-sourced usernames, which only
+    come with an owner username and DO need that follow-up scrape). This roughly
+    halves Apify spend since the network source is the larger volume driver.
+
+    Returns dict {username: profile_dict}."""
+    profiles_by_username = {}
     for seed in config.SEED_ACCOUNTS:
         run_input = {
             "startUrls": [f"https://www.instagram.com/{seed}/"],
@@ -235,15 +241,13 @@ def crawl_seed_followers():
         try:
             items = run_apify_actor(APIFY_FOLLOWERS_ACTOR, run_input)
             print(f"  [debug] follower actor returned {len(items)} raw items for seed '{seed}'")
-            if items:
-                print(f"  [debug] sample item keys: {list(items[0].keys())}")
             for item in items:
                 uname = item.get("username")
                 if uname and uname.lower() != seed.lower():  # skip the seed account itself
-                    usernames.add(uname)
+                    profiles_by_username[uname] = item  # full profile, not just the username
         except (requests.RequestException, RuntimeError, TimeoutError) as e:
             print(f"Follower crawl failed for seed '{seed}': {e}")
-    return usernames
+    return profiles_by_username
 
 
 # ---------- step 2: profile / bio scraping ----------
@@ -397,6 +401,65 @@ def smtp_check_mailbox(email):
     return result
 
 
+# ---------- AI quality gate (Claude Haiku) ----------
+
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
+
+def ai_judge_lead(profile):
+    """Ask Claude Haiku whether this profile is a genuine qualified buyer lead,
+    using the ICP description in config.py. Returns (is_qualified: bool, reason: str).
+    Fails open (treats as qualified) if the API call errors, so a transient API
+    issue never silently drops good leads -- it just means this profile didn't get
+    the extra AI scrutiny that run."""
+    if not config.ENABLE_AI_QUALITY_GATE or not ANTHROPIC_API_KEY:
+        return True, "AI gate disabled"
+
+    profile_summary = {
+        "username": profile.get("username"),
+        "fullName": profile.get("fullName"),
+        "category": profile.get("category") or profile.get("categoryName"),
+        "biography": profile.get("biography") or profile.get("bio"),
+        "website": profile.get("website"),
+        "followerCount": profile.get("followerCount"),
+    }
+
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": config.AI_MODEL,
+                "max_tokens": 150,
+                "system": config.ICP_DESCRIPTION,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": (
+                            "Profile to screen:\n"
+                            f"{json.dumps(profile_summary, indent=2)}\n\n"
+                            'Respond with ONLY a JSON object: {"is_qualified": true/false, "reason": "one short sentence"}'
+                        ),
+                    }
+                ],
+            },
+            timeout=20,
+        )
+        resp.raise_for_status()
+        text = resp.json()["content"][0]["text"]
+        # Strip any stray markdown fences before parsing
+        text = text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        result = json.loads(text)
+        return bool(result.get("is_qualified")), result.get("reason", "")
+    except Exception as e:
+        print(f"  [debug] AI judge call failed for '{profile.get('username')}', keeping lead: {e}")
+        return True, "AI check failed, kept by default"
+
+
 # ---------- step 4: Snov.io verification ----------
 
 def snov_get_token():
@@ -506,26 +569,40 @@ def main():
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
-    # Source 1: hashtag search (fixed seed + auto-discovered tags)
-    hashtag_discovered = discover_usernames(hashtags)
-    print(f"Hashtag source: {len(hashtag_discovered)} usernames")
+    # Source 1: hashtag search -- only gives usernames, needs a paid profile-detail scrape after
+    hashtag_usernames = discover_usernames(hashtags)
+    print(f"Hashtag source: {len(hashtag_usernames)} usernames")
 
-    # Source 2: follower-graph crawl of hub accounts (self-renewing)
-    network_discovered = crawl_seed_followers()
-    print(f"Network source: {len(network_discovered)} usernames")
+    # Source 2: follower-graph crawl -- already returns FULL profile data (bio, website,
+    # category, email), so these never need a second paid scrape. See crawl_seed_followers().
+    network_profiles = crawl_seed_followers()
+    print(f"Network source: {len(network_profiles)} usernames (full profile data already included)")
 
-    discovered = hashtag_discovered | network_discovered
-    new_usernames = list(discovered - seen_usernames)[: config.MAX_PROFILES_PER_RUN]
-    print(f"Combined: {len(discovered)} usernames, {len(new_usernames)} new to scrape")
+    new_network_profiles = {
+        u: p for u, p in network_profiles.items() if u not in seen_usernames
+    }
+    # MAX_PROFILES_PER_RUN now only caps the hashtag-sourced usernames, since those are
+    # the only ones that cost an extra Apify call -- network-sourced profiles are free
+    # to process in full since we already paid for their data during discovery.
+    new_hashtag_usernames = list(
+        (hashtag_usernames - seen_usernames) - set(new_network_profiles.keys())
+    )[: config.MAX_PROFILES_PER_RUN]
 
-    if not new_usernames:
+    print(
+        f"Combined: {len(new_network_profiles)} network profiles (free re-use, no extra scrape) "
+        f"+ {len(new_hashtag_usernames)} hashtag usernames to scrape"
+    )
+
+    if not new_network_profiles and not new_hashtag_usernames:
         print("No new usernames today, exiting.")
         return
 
-    profiles = scrape_profiles(new_usernames)
+    scraped_hashtag_profiles = scrape_profiles(new_hashtag_usernames) if new_hashtag_usernames else []
+    profiles = list(new_network_profiles.values()) + scraped_hashtag_profiles
     harvest_hashtags(profiles)  # feed tomorrow's auto-expanded hashtag pool
 
     candidates = []  # [{email, username, source_url}]
+    username_to_profile = {}
     skipped_competitor = 0
     skipped_irrelevant = 0
     skipped_no_website = 0
@@ -573,6 +650,7 @@ def main():
                     "source_url": f"https://instagram.com/{uname}" if uname else "",
                 }
             )
+            username_to_profile[uname] = profile
     print(
         f"  [debug] skipped {skipped_no_website} no-website, "
         f"{skipped_competitor} competitor/irrelevant-vertical, "
@@ -581,6 +659,23 @@ def main():
     )
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
+
+    # AI quality gate -- final check on the (small, already-filtered) candidate pool,
+    # using Claude Haiku against the real ICP description. Cheap because it only runs
+    # on candidates that already passed the keyword filters, not the full daily volume.
+    if config.ENABLE_AI_QUALITY_GATE and candidates:
+        ai_passed = []
+        ai_rejected_count = 0
+        for c in candidates:
+            profile = username_to_profile.get(c["username"], {})
+            is_qualified, reason = ai_judge_lead(profile)
+            if is_qualified:
+                ai_passed.append(c)
+            else:
+                ai_rejected_count += 1
+                print(f"  [debug] AI rejected '{c['username']}': {reason}")
+        print(f"AI quality gate: {len(ai_passed)}/{len(candidates)} passed ({ai_rejected_count} rejected)")
+        candidates = ai_passed
 
     # Save state now -- usernames/profiles already scraped (and Apify credits spent)
     # should never be reprocessed, even if the verification step below fails.

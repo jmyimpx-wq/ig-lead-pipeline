@@ -34,6 +34,7 @@ jobs:
           SNOV_CLIENT_ID: ${{ secrets.SNOV_CLIENT_ID }}
           SNOV_CLIENT_SECRET: ${{ secrets.SNOV_CLIENT_SECRET }}
           SNOV_LIST_ID: ${{ secrets.SNOV_LIST_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python -u pipeline.py
 
       - name: Commit updated state

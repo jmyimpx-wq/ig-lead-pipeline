@@ -41,10 +41,10 @@ HASHTAG_RESULTS_PER_TAG = 80
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.
-MAX_PROFILES_PER_RUN = 1500  # stepping up from 800 based on real observed ~5% conversion
-# (40 leads/800 profiles on day 1). Target ~100-130 leads/day needs ~2600 profiles/day --
-# raising gradually rather than jumping straight there. Re-tune after a few more days
-# of real data.
+MAX_PROFILES_PER_RUN = 1500  # NOTE: as of the cost-optimization update, this only caps
+# hashtag-sourced usernames (which need a paid profile-detail scrape). Network-sourced
+# profiles (from crawl_seed_followers) are now processed in full at no extra Apify cost,
+# since that call already returns complete profile data.
 
 # Free-provider domains to exclude if you only want business-domain emails.
 # Set to empty set [] if you want to keep gmail/yahoo/outlook leads too
@@ -107,6 +107,37 @@ EXCLUDE_KEYWORDS = [
     "fashion", "apparel", "clothing brand", "boutique fashion",
     "skincare", "beauty", "cosmetics", "makeup",
 ]
+
+# ---------------------------------------------------------------------------
+# AI quality gate (Claude Haiku). Applied AFTER the cheap keyword filters above,
+# as a final check on the small pool that already passed -- this keeps API cost
+# minimal while catching subtle false positives the keyword list lets through
+# (e.g. a jewelry account that also mentions "gift shop" in its bio) and
+# borderline judgment calls keyword matching can't make.
+ENABLE_AI_QUALITY_GATE = True
+AI_MODEL = "claude-haiku-4-5-20251001"
+
+ICP_DESCRIPTION = """
+You are screening Instagram business profiles as potential wholesale buyer leads
+for Jimmy Impex, an Indian manufacturer/exporter of tableware and home decor
+(rattan, brass, lacquerware, metal decor) with a focus on design-driven pieces
+in aesthetics like chinoiserie, grandmillennial, and toile.
+
+QUALIFIED leads look like: boutique home decor / tableware / tablescape retailers,
+interior designers who spec decor for clients, gift shops with a curated home
+aesthetic, small importers/distributors of home goods, wedding/event/floral
+stylists who buy tabletop pieces. Real reference examples of the kind of
+business this is for: Mrs. Alice (mrsalice.com), Enchanted Home
+(enchantedhome.com), Paolo Moschino (paolomoschino.com), WH Hostess
+(whhostess.com), Rail & Stile (therailandstile.com) -- boutique/curated home
+and tabletop retailers and designers, generally with a real e-commerce site or
+active online shop.
+
+NOT QUALIFIED: other exporters/manufacturers/factories/wholesale suppliers
+(competitors, not buyers), jewelry/fashion/beauty/apparel accounts, personal
+lifestyle bloggers with no real shop, accounts with no genuine business
+substance behind the bio, mass consumer retailers.
+"""
 
 # ---------------------------------------------------------------------------
 # SOURCE 2: Network/follower-graph expansion.

@@ -41,8 +41,10 @@ HASHTAG_RESULTS_PER_TAG = 80
 
 # How many NEW usernames (post-dedupe) to send to the profile-detail scraper per run.
 # This is your main cost lever — tune based on budget.
-MAX_PROFILES_PER_RUN = 800  # balanced: relaxed isBusiness gate should lift conversion meaningfully;
-# re-tune this number once a few real runs show the new actual conversion rate
+MAX_PROFILES_PER_RUN = 1500  # stepping up from 800 based on real observed ~5% conversion
+# (40 leads/800 profiles on day 1). Target ~100-130 leads/day needs ~2600 profiles/day --
+# raising gradually rather than jumping straight there. Re-tune after a few more days
+# of real data.
 
 # Free-provider domains to exclude if you only want business-domain emails.
 # Set to empty set [] if you want to keep gmail/yahoo/outlook leads too
@@ -119,6 +121,7 @@ SEED_ACCOUNTS = [
     "highpointmarket",   # High Point Market - world's largest furniture/home-decor trade show
     "lasvegasmarket",    # Las Vegas Market - wholesale furniture/gift/home decor, 121K followers
     "ny_now",            # NY NOW - New York Gift Show, 105K followers
+    "dallasmarket",      # Dallas Market Center - tabletop/housewares/gift trade show, 140K followers
 ]
 # All four accounts above are B2B wholesale marketplaces whose followers are
 # verified designers, retailers, wholesalers, and buyers -- exactly your target

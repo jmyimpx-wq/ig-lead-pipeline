@@ -40,6 +40,7 @@ import random
 import requests
 import dns.resolver
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 import config
 
@@ -136,6 +137,27 @@ def save_json_set(path, data):
     os.makedirs(STATE_DIR, exist_ok=True)
     with open(path, "w") as f:
         json.dump(sorted(data), f, indent=2)
+
+
+DAILY_REPORTS_FILE = os.path.join(STATE_DIR, "daily_reports.json")
+MAX_REPORTS_KEPT = 120  # ~4 months of daily history
+
+
+def save_daily_report(report):
+    """Append today's run summary to the reports file the dashboard reads."""
+    os.makedirs(STATE_DIR, exist_ok=True)
+    reports = []
+    if os.path.exists(DAILY_REPORTS_FILE):
+        try:
+            with open(DAILY_REPORTS_FILE) as f:
+                reports = json.load(f)
+        except Exception:
+            reports = []
+    reports.append(report)
+    reports = reports[-MAX_REPORTS_KEPT:]
+    with open(DAILY_REPORTS_FILE, "w") as f:
+        json.dump(reports, f, indent=2)
+    print(f"  [debug] saved daily report ({len(reports)} reports kept)")
 
 
 # ---------- step 1: hashtag discovery ----------
@@ -654,6 +676,14 @@ def main():
     seen_usernames = load_json_set(SEEN_USERNAMES_FILE)
     seen_emails = load_json_set(SEEN_EMAILS_FILE)
 
+    report = {
+        "date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "haiku_rejections": [],
+        "sonnet_rejections": [],
+        "pushed_leads": [],
+    }
+
     hashtags = build_today_hashtags()
     print(f"Today's hashtags ({len(hashtags)}): {hashtags}")
 
@@ -680,9 +710,14 @@ def main():
         f"Combined: {len(new_network_profiles)} network profiles (free re-use, no extra scrape) "
         f"+ {len(new_hashtag_usernames)} hashtag usernames to scrape"
     )
+    report["hashtag_source_discovered"] = len(hashtag_usernames)
+    report["network_source_discovered"] = len(network_profiles)
+    report["network_profiles_reused"] = len(new_network_profiles)
+    report["hashtag_profiles_scraped"] = len(new_hashtag_usernames)
 
     if not new_network_profiles and not new_hashtag_usernames:
         print("No new usernames today, exiting.")
+        save_daily_report(report)
         return
 
     scraped_hashtag_profiles = scrape_profiles(new_hashtag_usernames) if new_hashtag_usernames else []
@@ -745,6 +780,10 @@ def main():
         f"{skipped_irrelevant} off-niche profiles "
         f"({non_business_but_kept} of the considered pool weren't marked 'business' by Instagram but were still evaluated)"
     )
+    report["skipped_no_website"] = skipped_no_website
+    report["skipped_competitor_or_irrelevant_vertical"] = skipped_competitor
+    report["skipped_off_niche"] = skipped_irrelevant
+    report["candidates_after_keyword_filters"] = len(candidates)
 
     print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
 
@@ -762,6 +801,7 @@ def main():
             else:
                 ai_rejected_count += 1
                 print(f"  [debug] AI rejected '{c['username']}': {reason}")
+                report["haiku_rejections"].append({"username": c["username"], "reason": reason})
         print(f"AI quality gate (Haiku): {len(ai_passed)}/{len(candidates)} passed ({ai_rejected_count} rejected)")
         candidates = ai_passed
 
@@ -779,6 +819,7 @@ def main():
             else:
                 sonnet_rejected_count += 1
                 print(f"  [debug] Sonnet rejected '{c['username']}' after reading website: {reason}")
+                report["sonnet_rejections"].append({"username": c["username"], "reason": reason})
         print(f"AI quality gate (Sonnet+website): {len(sonnet_passed)}/{len(candidates)} passed ({sonnet_rejected_count} rejected)")
         candidates = sonnet_passed
 
@@ -787,6 +828,7 @@ def main():
     save_json_set(SEEN_USERNAMES_FILE, seen_usernames)
 
     if not candidates:
+        save_daily_report(report)
         return
 
     # Step A: our own SMTP-level mailbox check -- this is the PRIMARY verifier,
@@ -806,6 +848,9 @@ def main():
         f"{len(own_invalid)} invalid (dropped), {len(own_unknown)} unknown "
         f"(sending to Snov.io as fallback)"
     )
+    report["own_smtp_valid"] = len(own_valid)
+    report["own_smtp_invalid"] = len(own_invalid)
+    report["own_smtp_unknown"] = len(own_unknown)
 
     valid = list(own_valid)
 
@@ -816,11 +861,14 @@ def main():
             statuses = snov_verify_emails(token, emails)
             fallback_valid = [c for c in own_unknown if statuses.get(c["email"]) == "valid"]
             print(f"Snov.io fallback: {len(fallback_valid)}/{len(own_unknown)} verified valid")
+            report["snov_fallback_valid"] = len(fallback_valid)
             valid.extend(fallback_valid)
         except requests.RequestException as e:
             print(f"Snov.io fallback step failed (unknown-status candidates dropped this run): {e}")
+            report["snov_fallback_error"] = str(e)
 
     print(f"{len(valid)}/{len(candidates)} total verified valid")
+    report["total_verified_valid"] = len(valid)
 
     if valid:
         token = snov_get_token()
@@ -828,8 +876,11 @@ def main():
         for v in valid:
             seen_emails.add(v["email"])
         save_json_set(SEEN_EMAILS_FILE, seen_emails)
+        report["pushed_leads"] = [{"username": v["username"], "email": v["email"]} for v in valid]
 
     print(f"Done. Pushed {len(valid)} new verified leads to Snov.io list {SNOV_LIST_ID}.")
+    report["pushed_to_snovio"] = len(valid)
+    save_daily_report(report)
 
 
 if __name__ == "__main__":

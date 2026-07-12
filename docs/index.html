@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jimmy Impex — Lead Pipeline Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0; padding: 24px; max-width: 1100px; margin: 0 auto;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card .value { font-size: 28px; font-weight: 600; margin-top: 4px; }
+  .card.green .value { color: var(--green); }
+  .card.red .value { color: var(--red); }
+  .card.blue .value { color: var(--blue); }
+  section { margin-bottom: 32px; }
+  h2 { font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; }
+  tr:hover { background: rgba(255,255,255,0.02); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .pill.push { background: rgba(63,185,80,0.15); color: var(--green); }
+  .reason-list { max-height: 260px; overflow-y: auto; }
+  .reason { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .reason .u { color: var(--blue); font-weight: 600; }
+  .reason .r { color: var(--muted); }
+  select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+  .loading, .error { color: var(--muted); padding: 40px; text-align: center; }
+  .funnel { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .funnel-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .funnel-bar { height: 20px; background: var(--blue); border-radius: 3px; }
+  .funnel-label { width: 220px; color: var(--muted); flex-shrink: 0; }
+  .funnel-count { width: 50px; text-align: right; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>Instagram Lead Pipeline — Dashboard</h1>
+  <div class="subtitle">Daily automated run summary · updates after each GitHub Actions run</div>
+
+  <div id="content" class="loading">Loading report data…</div>
+
+<script>
+const REPORTS_URL = "../state/daily_reports.json";
+
+function fmtDate(d) {
+  return new Date(d + "T00:00:00Z").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function render(reports) {
+  const content = document.getElementById("content");
+  if (!reports || reports.length === 0) {
+    content.innerHTML = '<div class="error">No reports yet — check back after the first pipeline run.</div>';
+    return;
+  }
+
+  reports.sort((a, b) => (a.date < b.date ? 1 : -1));
+  const latest = reports[0];
+
+  const totalPushed = reports.reduce((s, r) => s + (r.pushed_to_snovio || 0), 0);
+  const totalHaikuRej = reports.reduce((s, r) => s + (r.haiku_rejections || []).length, 0);
+  const totalSonnetRej = reports.reduce((s, r) => s + (r.sonnet_rejections || []).length, 0);
+  const totalSuspicious = reports.reduce(
+    (s, r) => s + (r.skipped_no_website || 0) + (r.skipped_competitor_or_irrelevant_vertical || 0) + (r.skipped_off_niche || 0), 0
+  );
+
+  let html = "";
+
+  html += `<div class="cards">
+    <div class="card green"><div class="label">Pushed to Snov.io (latest run)</div><div class="value">${latest.pushed_to_snovio || 0}</div></div>
+    <div class="card"><div class="label">Candidates after keyword filters</div><div class="value">${latest.candidates_after_keyword_filters || 0}</div></div>
+    <div class="card red"><div class="label">AI-rejected (Haiku+Sonnet)</div><div class="value">${(latest.haiku_rejections||[]).length + (latest.sonnet_rejections||[]).length}</div></div>
+    <div class="card blue"><div class="label">Total pushed (all-time, ${reports.length}d)</div><div class="value">${totalPushed}</div></div>
+  </div>`;
+
+  // Funnel for latest run
+  const f = latest;
+  const funnelSteps = [
+    ["Hashtag source discovered", f.hashtag_source_discovered],
+    ["Network source discovered", f.network_source_discovered],
+    ["Profiles scraped/reused", (f.network_profiles_reused||0) + (f.hashtag_profiles_scraped||0)],
+    ["Skipped: no website", f.skipped_no_website],
+    ["Skipped: competitor/irrelevant vertical", f.skipped_competitor_or_irrelevant_vertical],
+    ["Skipped: off-niche", f.skipped_off_niche],
+    ["Candidates after keyword filters", f.candidates_after_keyword_filters],
+    ["Haiku rejected", (f.haiku_rejections||[]).length],
+    ["Sonnet rejected", (f.sonnet_rejections||[]).length],
+    ["SMTP valid (own check)", f.own_smtp_valid],
+    ["SMTP invalid (dropped)", f.own_smtp_invalid],
+    ["Snov.io fallback valid", f.snov_fallback_valid],
+    ["Final pushed to Snov.io", f.pushed_to_snovio],
+  ];
+  const maxVal = Math.max(...funnelSteps.map(s => s[1] || 0), 1);
+  html += `<section><h2>Latest run funnel (${fmtDate(latest.date)})</h2><div class="funnel">`;
+  for (const [label, val] of funnelSteps) {
+    const width = Math.max(2, ((val || 0) / maxVal) * 100);
+    html += `<div class="funnel-row">
+      <div class="funnel-label">${label}</div>
+      <div class="funnel-bar" style="width:${width}%"></div>
+      <div class="funnel-count">${val || 0}</div>
+    </div>`;
+  }
+  html += `</div></section>`;
+
+  // Pushed leads table
+  html += `<section><h2>Leads pushed to Snov.io (latest run)</h2><table><thead><tr><th>Username</th><th>Email</th></tr></thead><tbody>`;
+  (latest.pushed_leads || []).forEach(l => {
+    html += `<tr><td>@${l.username}</td><td>${l.email}</td></tr>`;
+  });
+  if (!latest.pushed_leads || latest.pushed_leads.length === 0) {
+    html += `<tr><td colspan="2" style="color:var(--muted)">No leads pushed this run</td></tr>`;
+  }
+  html += `</tbody></table></section>`;
+
+  // Rejection reasons
+  html += `<section><h2>Why leads were rejected (latest run)</h2>`;
+  html += `<h3 style="font-size:13px;color:var(--muted);margin-bottom:6px">Haiku rejections (${(latest.haiku_rejections||[]).length})</h3><div class="reason-list">`;
+  (latest.haiku_rejections || []).forEach(r => {
+    html += `<div class="reason"><span class="u">@${r.username}</span> — <span class="r">${r.reason}</span></div>`;
+  });
+  html += `</div>`;
+  html += `<h3 style="font-size:13px;color:var(--muted);margin:14px 0 6px">Sonnet rejections after reading website (${(latest.sonnet_rejections||[]).length})</h3><div class="reason-list">`;
+  (latest.sonnet_rejections || []).forEach(r => {
+    html += `<div class="reason"><span class="u">@${r.username}</span> — <span class="r">${r.reason}</span></div>`;
+  });
+  html += `</div></section>`;
+
+  // History table
+  html += `<section><h2>Run history</h2><table><thead><tr>
+    <th>Date</th><th>Discovered</th><th>Candidates</th><th>AI-rejected</th><th>Pushed</th>
+  </tr></thead><tbody>`;
+  reports.forEach(r => {
+    const discovered = (r.hashtag_source_discovered || 0) + (r.network_source_discovered || 0);
+    const aiRejected = (r.haiku_rejections||[]).length + (r.sonnet_rejections||[]).length;
+    html += `<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${discovered}</td>
+      <td>${r.candidates_after_keyword_filters || 0}</td>
+      <td>${aiRejected}</td>
+      <td><span class="pill push">${r.pushed_to_snovio || 0}</span></td>
+    </tr>`;
+  });
+  html += `</tbody></table></section>`;
+
+  content.innerHTML = html;
+}
+
+fetch(REPORTS_URL)
+  .then(r => { if (!r.ok) throw new Error("reports file not found yet"); return r.json(); })
+  .then(render)
+  .catch(err => {
+    document.getElementById("content").innerHTML =
+      `<div class="error">Couldn't load report data yet (${err.message}). This appears after the first pipeline run with reporting enabled.</div>`;
+  });
+</script>
+</body>
+</html>

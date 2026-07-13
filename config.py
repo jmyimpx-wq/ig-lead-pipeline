@@ -122,12 +122,15 @@ ENABLE_SONNET_WEBSITE_VERIFY = True
 SONNET_MODEL = "claude-sonnet-4-6"
 
 # ---------------------------------------------------------------------------
-# AI rescue pass (Tier 0, runs BEFORE the keyword filter's rejection is final):
-# profiles that failed ONLY the niche-relevance keyword match (not the website
-# or competitor checks, which are stronger/cheaper signals) get a second look
-# from Haiku, in case the keyword list was just too narrow for a genuinely
-# qualified lead's bio wording.
-ENABLE_AI_RESCUE_PASS = True
+# NOTE on filtering architecture (simplified): the only free hard filter left
+# is website-presence (has_real_website in pipeline.py) -- everything else
+# (niche relevance, competitor exclusion) is now judged by Haiku directly in
+# one holistic pass per candidate, using ICP_DESCRIPTION below, instead of
+# the old blunt keyword lists. Sonnet only re-checks candidates Haiku flagged
+# as "low confidence" (ambiguous bio), reading their real website before a
+# final decision -- this keeps the expensive Sonnet tier small.
+# RELEVANT_KEYWORDS / EXCLUDE_KEYWORDS below are kept only as a reference of
+# what the ICP covers -- they're no longer used as active filters.
 
 # ---------------------------------------------------------------------------
 # AI research automation: Sonnet (with real web search) periodically proposes

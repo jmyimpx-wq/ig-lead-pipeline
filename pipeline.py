@@ -669,12 +669,14 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 def ai_judge_lead(profile):
     """Ask Claude Haiku whether this profile is a genuine qualified buyer lead,
-    using the ICP description in config.py. Returns (is_qualified: bool, reason: str).
-    Fails open (treats as qualified) if the API call errors, so a transient API
-    issue never silently drops good leads -- it just means this profile didn't get
-    the extra AI scrutiny that run."""
+    using the ICP description in config.py. Haiku now judges niche-relevance AND
+    competitor-exclusion holistically in one pass (replacing the old blunt
+    keyword filters, which had real false positive/negative problems).
+    Returns (is_qualified: bool, confidence: "high"/"low", reason: str).
+    Fails open (treats as qualified, high confidence) if the API call errors,
+    so a transient API issue never silently drops good leads."""
     if not config.ENABLE_AI_QUALITY_GATE or not ANTHROPIC_API_KEY:
-        return True, "AI gate disabled"
+        return True, "high", "AI gate disabled"
 
     profile_summary = {
         "username": profile.get("username"),
@@ -701,9 +703,16 @@ def ai_judge_lead(profile):
                     {
                         "role": "user",
                         "content": (
-                            "Profile to screen:\n"
+                            "Profile to screen (judge BOTH niche-relevance and whether "
+                            "this looks like a competitor -- exporter/manufacturer/factory/"
+                            "supplier -- not just a keyword match):\n"
                             f"{json.dumps(profile_summary, indent=2)}\n\n"
-                            'Respond with ONLY a JSON object: {"is_qualified": true/false, "reason": "one short sentence"}'
+                            "Respond with ONLY a JSON object: "
+                            '{"is_qualified": true/false, '
+                            '"confidence": "high"/"low" (low if the bio is too vague/generic '
+                            "to judge confidently from Instagram data alone and would benefit "
+                            "from actually reading their website), "
+                            '"reason": "one short sentence"}'
                         ),
                     }
                 ],
@@ -715,10 +724,14 @@ def ai_judge_lead(profile):
         # Strip any stray markdown fences before parsing
         text = text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         result = json.loads(text)
-        return bool(result.get("is_qualified")), result.get("reason", "")
+        return (
+            bool(result.get("is_qualified")),
+            result.get("confidence", "low"),
+            result.get("reason", ""),
+        )
     except Exception as e:
         print(f"  [debug] AI judge call failed for '{profile.get('username')}', keeping lead: {e}")
-        return True, "AI check failed, kept by default"
+        return True, "high", "AI check failed, kept by default"
 
 
 def fetch_website_text(url, timeout=10, max_chars=2500):
@@ -987,11 +1000,8 @@ def main():
             "bioLinks": sample.get("bioLinks"),
         }
 
-    candidates = []  # [{email, username, source_url}]
+    candidates = []  # [{email, username, source_url}] -- profiles with a website, ready for Haiku's full judgment
     username_to_profile = {}
-    rescue_pool = []  # profiles that failed ONLY the relevance check -- eligible for AI rescue pass
-    skipped_competitor = 0
-    skipped_irrelevant = 0
     skipped_no_website = 0
     non_business_but_kept = 0
     for profile in profiles:
@@ -999,40 +1009,25 @@ def main():
         seen_usernames.add(uname) if uname else None
 
         # NOTE: Instagram's isBusiness flag is intentionally NOT a hard filter --
-        # it has both false positives (irrelevant hobby accounts toggle it on) and
-        # false negatives (plenty of genuine small wedding/decor/retail businesses
-        # never bother switching to a "business account"). The real quality gates
-        # are the checks below: website presence, niche relevance, and competitor
-        # exclusion.
+        # it has both false positives and false negatives. Tracked for
+        # visibility only.
         if not profile.get("isBusiness", False):
             non_business_but_kept += 1
 
-        # No website/bio link at all -> much less likely to be a real importing/
-        # reselling business, just an Instagram-only page. Skip.
+        # The ONLY free hard filter left: no website/bio link at all -> much
+        # less likely to be a real importing/reselling business, just an
+        # Instagram-only page. This alone prunes the majority of junk for
+        # free, before anything reaches a paid AI call.
         if not has_real_website(profile):
             skipped_no_website += 1
             continue
 
-        # Exclude competitors: exporters/manufacturers/factories/suppliers are
-        # sellers like you, not buyers -- and exclude irrelevant verticals
-        # (jewelry, fashion, beauty) that matched on overly generic terms before.
-        if is_excluded_supplier(profile):
-            skipped_competitor += 1
-            continue
-
-        # Real quality gate -- does this account actually match your specific
-        # product category (tabletop/tableware/home decor with design themes
-        # like chinoiserie, grandmillennial, toile) or adjacent verticals
-        # (interior design, wedding/floral/event)?
-        if not is_relevant_b2b_lead(profile):
-            skipped_irrelevant += 1
-            # This profile passed the stronger signals (website + not a competitor)
-            # and only missed on keyword wording -- worth a second look from AI
-            # rather than an automatic reject. See the rescue pass below.
-            if config.ENABLE_AI_RESCUE_PASS:
-                rescue_pool.append(profile)
-            continue
-
+        # Relevance and competitor-exclusion are now judged by Haiku directly
+        # (see ai_judge_lead below) instead of blunt keyword matching -- this
+        # was rejecting genuine leads whose bio wording didn't match the
+        # keyword list, and letting through false positives (e.g. a jewelry
+        # account matching on "boutique"). Haiku's ICP prompt already covers
+        # both dimensions in one holistic judgment.
         email = extract_email(profile)
         if email and prefilter(email, seen_emails):
             candidates.append(
@@ -1044,67 +1039,53 @@ def main():
             )
             username_to_profile[uname] = profile
     print(
-        f"  [debug] skipped {skipped_no_website} no-website, "
-        f"{skipped_competitor} competitor/irrelevant-vertical, "
-        f"{skipped_irrelevant} off-niche profiles "
+        f"  [debug] skipped {skipped_no_website} no-website profiles "
         f"({non_business_but_kept} of the considered pool weren't marked 'business' by Instagram but were still evaluated)"
     )
     report["skipped_no_website"] = skipped_no_website
-    report["skipped_competitor_or_irrelevant_vertical"] = skipped_competitor
-    report["skipped_off_niche"] = skipped_irrelevant
-
-    # AI rescue pass (Tier 0): give Haiku a second look at profiles that only
-    # failed the keyword-relevance check, in case a genuine lead's bio just
-    # didn't happen to use our exact keyword list.
-    rescued_count = 0
-    if config.ENABLE_AI_RESCUE_PASS and rescue_pool and ANTHROPIC_API_KEY:
-        for profile in rescue_pool:
-            is_qualified, reason = ai_judge_lead(profile)
-            if is_qualified:
-                email = extract_email(profile)
-                if email and prefilter(email, seen_emails):
-                    uname = profile.get("username")
-                    candidates.append(
-                        {
-                            "email": email,
-                            "username": uname,
-                            "source_url": f"https://instagram.com/{uname}" if uname else "",
-                        }
-                    )
-                    username_to_profile[uname] = profile
-                    rescued_count += 1
-                    print(f"  [debug] rescued '{uname}' (failed keyword match, AI confirmed qualified): {reason}")
-        print(f"AI rescue pass: {rescued_count}/{len(rescue_pool)} rescued from the off-niche pile")
-    report["ai_rescued_count"] = rescued_count
     report["candidates_after_keyword_filters"] = len(candidates)
 
-    print(f"{len(candidates)} candidates passed free pre-filter (dedupe/regex/MX)")
+    print(f"{len(candidates)} candidates passed free pre-filter (website + dedupe/regex/MX)")
 
-    # AI quality gate -- final check on the (small, already-filtered) candidate pool,
-    # using Claude Haiku against the real ICP description. Cheap because it only runs
-    # on candidates that already passed the keyword filters, not the full daily volume.
+    # AI quality gate -- Haiku judges niche-relevance AND competitor-exclusion
+    # holistically for every website-having candidate (replaces the old blunt
+    # keyword filters). High-confidence verdicts are trusted directly; only
+    # "low confidence" (ambiguous bio) cases get escalated to Sonnet for a
+    # deeper look at their real website -- this keeps the expensive Sonnet
+    # tier small while still catching genuinely unclear cases properly.
+    confident_qualified = []
+    uncertain_pool = []  # -> escalated to Sonnet
+    haiku_rejected_count = 0
+
     if config.ENABLE_AI_QUALITY_GATE and candidates:
-        ai_passed = []
-        ai_rejected_count = 0
         for c in candidates:
             profile = username_to_profile.get(c["username"], {})
-            is_qualified, reason = ai_judge_lead(profile)
-            if is_qualified:
-                ai_passed.append(c)
-            else:
-                ai_rejected_count += 1
-                print(f"  [debug] AI rejected '{c['username']}': {reason}")
+            is_qualified, confidence, reason = ai_judge_lead(profile)
+            if not is_qualified and confidence == "high":
+                haiku_rejected_count += 1
+                print(f"  [debug] Haiku rejected '{c['username']}' (high confidence): {reason}")
                 report["haiku_rejections"].append({"username": c["username"], "reason": reason})
-        print(f"AI quality gate (Haiku): {len(ai_passed)}/{len(candidates)} passed ({ai_rejected_count} rejected)")
-        candidates = ai_passed
+            elif is_qualified and confidence == "high":
+                confident_qualified.append(c)
+            else:
+                # low confidence, either direction -- worth Sonnet reading the real website
+                uncertain_pool.append(c)
+        print(
+            f"Haiku: {len(confident_qualified)} confident-qualified, "
+            f"{len(uncertain_pool)} uncertain (-> Sonnet), "
+            f"{haiku_rejected_count} confident-rejected"
+        )
+        candidates = confident_qualified + uncertain_pool
+    report["haiku_confident_qualified"] = len(confident_qualified)
+    report["haiku_uncertain_escalated_to_sonnet"] = len(uncertain_pool)
 
-    # Tier 2: Sonnet + real website content -- only for candidates Haiku already
-    # approved, as a final grounded check before spending SMTP/Snov.io credits
-    # and (more importantly) a scarce 100/day outreach slot on this lead.
-    if config.ENABLE_SONNET_WEBSITE_VERIFY and candidates:
+    # Tier 2: Sonnet + real website content -- ONLY for the "uncertain" pool
+    # Haiku flagged, not every Haiku-approved lead. This is the main cost lever
+    # on the expensive tier: most candidates should resolve at the Haiku stage.
+    if config.ENABLE_SONNET_WEBSITE_VERIFY and uncertain_pool:
         sonnet_passed = []
         sonnet_rejected_count = 0
-        for c in candidates:
+        for c in uncertain_pool:
             profile = username_to_profile.get(c["username"], {})
             is_qualified, reason = ai_deep_verify_with_website(profile)
             if is_qualified:
@@ -1113,8 +1094,8 @@ def main():
                 sonnet_rejected_count += 1
                 print(f"  [debug] Sonnet rejected '{c['username']}' after reading website: {reason}")
                 report["sonnet_rejections"].append({"username": c["username"], "reason": reason})
-        print(f"AI quality gate (Sonnet+website): {len(sonnet_passed)}/{len(candidates)} passed ({sonnet_rejected_count} rejected)")
-        candidates = sonnet_passed
+        print(f"AI quality gate (Sonnet+website): {len(sonnet_passed)}/{len(uncertain_pool)} passed ({sonnet_rejected_count} rejected)")
+        candidates = confident_qualified + sonnet_passed
 
     # Save state now -- usernames/profiles already scraped (and HikerAPI credits spent)
     # should never be reprocessed, even if the verification step below fails.

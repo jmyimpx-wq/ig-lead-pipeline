@@ -158,12 +158,33 @@ business this is for: Mrs. Alice (mrsalice.com), Enchanted Home
 (enchantedhome.com), Paolo Moschino (paolomoschino.com), WH Hostess
 (whhostess.com), Rail & Stile (therailandstile.com) -- boutique/curated home
 and tabletop retailers and designers, generally with a real e-commerce site or
-active online shop.
+active online shop. Because Jimmy Impex is an exporter selling INTO overseas
+markets, genuinely qualified buyers are almost always based in the destination
+markets themselves -- primarily USA, UK, Europe, and the Gulf.
 
 NOT QUALIFIED: other exporters/manufacturers/factories/wholesale suppliers
 (competitors, not buyers), jewelry/fashion/beauty/apparel accounts, personal
 lifestyle bloggers with no real shop, accounts with no genuine business
 substance behind the bio, mass consumer retailers.
+
+GEOGRAPHY REASONING (apply judgment, don't just pattern-match a country flag):
+Jimmy Impex is based in India and manufactures/exports FROM Asian manufacturing
+hubs -- India, China, Indonesia, Vietnam, Pakistan, Bangladesh, Thailand, and
+similar. A business you're screening that is itself based in one of these hubs
+(evidenced by phone country code, website domain suffix like .in/.cn/.id/.vn,
+or a listed city/address in one of these countries) is much more likely to be
+a fellow manufacturer, wholesaler, or exporter competing for the SAME overseas
+buyers -- not a genuine end-market buyer -- even if their bio says "retailer"
+or their category looks relevant, since sourcing/export businesses in these
+hubs often present themselves that way while actually reselling or
+re-exporting rather than being the final overseas buyer. Weigh this as a
+strong negative signal, but use real judgment: a profile with no clear
+geographic signal at all shouldn't be penalized for missing data (mark
+confidence "low" and let it go to deeper review instead of an automatic
+reject), and if there's strong countervailing evidence (e.g. the website is
+clearly a small end-consumer-facing local boutique in that region with no
+export/wholesale language anywhere) that's worth noting in your reasoning
+rather than an automatic exclusion.
 """
 
 # ---------------------------------------------------------------------------

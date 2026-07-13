@@ -446,6 +446,13 @@ def hikerapi_get_profile(username):
             "followingCount": raw.get("following_count"),
             "isPrivate": raw.get("is_private"),
             "isVerified": raw.get("is_verified"),
+            # Geographic signals -- used by Haiku to reason about whether this
+            # is likely a fellow manufacturer/supplier (based in an Asian
+            # manufacturing hub) rather than a genuine overseas buyer. See
+            # is_relevant_b2b_lead's ai_judge_lead prompt / ICP_DESCRIPTION.
+            "phoneCountryCode": raw.get("public_phone_country_code"),
+            "addressStreet": raw.get("address_street"),
+            "cityName": raw.get("city_name"),
         }
     except Exception as e:
         print(f"  [debug] HikerAPI profile lookup failed for '{username}': {e}")
@@ -667,6 +674,22 @@ def smtp_check_mailbox(email):
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 
+def extract_domain_suffix(url):
+    """Pull the TLD from a website URL (e.g. '.in', '.cn', '.co.id') -- one of
+    several geographic signals fed to Haiku's competitor-reasoning, alongside
+    phone country code and city/address."""
+    if not url:
+        return None
+    try:
+        domain = re.sub(r"^https?://", "", url).split("/")[0]
+        parts = domain.split(".")
+        if len(parts) >= 2:
+            return "." + ".".join(parts[-2:]) if parts[-2] in ("co", "com") and len(parts) >= 3 else "." + parts[-1]
+    except Exception:
+        pass
+    return None
+
+
 def ai_judge_lead(profile):
     """Ask Claude Haiku whether this profile is a genuine qualified buyer lead,
     using the ICP description in config.py. Haiku now judges niche-relevance AND
@@ -684,6 +707,10 @@ def ai_judge_lead(profile):
         "category": profile.get("category") or profile.get("categoryName"),
         "biography": profile.get("biography") or profile.get("bio"),
         "website": profile.get("website"),
+        "websiteDomainSuffix": extract_domain_suffix(profile.get("website")),
+        "phoneCountryCode": profile.get("phoneCountryCode"),
+        "cityName": profile.get("cityName"),
+        "addressStreet": profile.get("addressStreet"),
         "followerCount": profile.get("followerCount"),
     }
 
@@ -800,10 +827,14 @@ def ai_deep_verify_with_website(profile):
                         "role": "user",
                         "content": (
                             f"Instagram username: {profile.get('username')}\n"
-                            f"Instagram bio: {profile.get('biography') or profile.get('bio')}\n\n"
+                            f"Instagram bio: {profile.get('biography') or profile.get('bio')}\n"
+                            f"Website domain suffix: {extract_domain_suffix(profile.get('website'))}\n"
+                            f"Phone country code: {profile.get('phoneCountryCode')}\n"
+                            f"City/address: {profile.get('cityName')}, {profile.get('addressStreet')}\n\n"
                             f"Their actual website content (fetched directly):\n{website_text}\n\n"
                             "Based on the REAL website content above (not just the Instagram bio), "
-                            "is this a genuinely qualified buyer lead matching the ICP? "
+                            "is this a genuinely qualified buyer lead matching the ICP? Also weigh the "
+                            "geographic signals per the competitor-geography guidance in your instructions. "
                             'Respond with ONLY a JSON object: {"is_qualified": true/false, "reason": "one short sentence"}'
                         ),
                     }

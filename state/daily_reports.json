@@ -71,5 +71,60 @@
     "hashtag_source_discovered": 0,
     "network_source_discovered": 0,
     "profiles_scraped_this_run": 0
+  },
+  {
+    "date": "2026-07-13",
+    "timestamp": "2026-07-13T15:58:35.010628Z",
+    "haiku_rejections": [
+      {
+        "username": "earthquakespices",
+        "reason": "Hot sauce manufacturer; not in home decor, tableware, or tablescape retail\u2014wrong category entirely."
+      },
+      {
+        "username": "mapsworld_media",
+        "reason": "Media/news magazine with no home decor or tabletop retail business substance; not a buyer of wholesale tableware or home decor."
+      },
+      {
+        "username": "hawsal.gems",
+        "reason": "Jewelry & gemstones company (not tableware/home decor), and country code 93 (Afghanistan) signals manufacturing/export hub competitor, not an end-market buyer."
+      },
+      {
+        "username": "shopjwills",
+        "reason": "Primary focus is children's clothing and gifts, not home decor/tableware/tablescape retail; outside Jimmy Impex's product category."
+      },
+      {
+        "username": "ardoru.cards",
+        "reason": "ArdorU is a greeting card retailer/publisher, not a home decor, tableware, or tablescape buyer\u2014completely outside Jimmy Impex's product categories."
+      },
+      {
+        "username": "flowerish.studio",
+        "reason": "Floral designer/florist focused on arrangements, not a tableware/home decor retailer or interior designer who specs decor products."
+      },
+      {
+        "username": "gentle_echoes_art",
+        "reason": "Artist/designer selling their own original patterns and wallpapers (licensor), not a retailer/buyer of tableware and home decor products."
+      }
+    ],
+    "sonnet_rejections": [],
+    "pushed_leads": [],
+    "hashtag_source_discovered": 581,
+    "network_source_discovered": 2034,
+    "profiles_scraped_this_run": 25,
+    "profiles_actually_returned": 25,
+    "debug_sample_scraped_profile": {
+      "username": "momoyostobyfashion",
+      "isBusiness": false,
+      "category": "Clothing (Brand)",
+      "biography": "\u267b\ufe0fCircular Sustainable Fashion\n\u2702\ufe0fOne-of-a-kind\n\ud83e\uddf5Vintage Tenugui & Fabrics\n\ud83c\uddfa\ud83c\uddf3UN Fashion & Lifestyle Network Member\n\u201cOnce Vintage. Now the Spotlight\u201d",
+      "website": "http://www.momoyostoby.com/",
+      "bioLinks": [
+        "http://www.momoyostoby.com/"
+      ]
+    },
+    "no_email_count": 18,
+    "no_website_but_kept": 13,
+    "candidates_after_keyword_filters": 7,
+    "haiku_confident_qualified": 0,
+    "haiku_uncertain_escalated_to_sonnet": 0
   }
 ]

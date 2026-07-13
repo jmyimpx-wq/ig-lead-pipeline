@@ -1033,6 +1033,7 @@ def main():
 
     candidates = []  # [{email, username, source_url}] -- any profile with a real, deliverable-looking email
     username_to_profile = {}
+    pre_ai_rejections = []  # [{username, reason}] -- dropped before ever reaching AI, for dashboard visibility
     no_email_count = 0
     no_website_but_kept = 0
     non_business_but_kept = 0
@@ -1077,6 +1078,13 @@ def main():
             username_to_profile[uname] = profile
         else:
             no_email_count += 1
+            reason = (
+                "no extractable email in bio/contact fields"
+                if extract_email(profile) is None
+                else "duplicate email or failed format/MX check"
+            )
+            pre_ai_rejections.append({"username": uname, "reason": reason})
+    report["pre_ai_rejections"] = pre_ai_rejections
     print(
         f"  [debug] skipped {no_email_count} no-extractable-email profiles "
         f"({no_website_but_kept} kept despite no website field set, "

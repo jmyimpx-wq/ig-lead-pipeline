@@ -126,7 +126,15 @@ function render(reports) {
 
   // Rejection reasons
   html += `<section><h2>Why leads were rejected (latest run)</h2>`;
-  html += `<h3 style="font-size:13px;color:var(--muted);margin-bottom:6px">Haiku rejections (${(latest.haiku_rejections||[]).length})</h3><div class="reason-list">`;
+  html += `<h3 style="font-size:13px;color:var(--muted);margin-bottom:6px">Dropped before AI -- no usable email found (${(latest.pre_ai_rejections||[]).length})</h3><div class="reason-list">`;
+  (latest.pre_ai_rejections || []).forEach(r => {
+    html += `<div class="reason"><span class="u">@${r.username}</span> — <span class="r">${r.reason}</span></div>`;
+  });
+  if (!latest.pre_ai_rejections || latest.pre_ai_rejections.length === 0) {
+    html += `<div class="reason" style="color:var(--muted)">None this run</div>`;
+  }
+  html += `</div>`;
+  html += `<h3 style="font-size:13px;color:var(--muted);margin:14px 0 6px">Haiku rejections (${(latest.haiku_rejections||[]).length})</h3><div class="reason-list">`;
   (latest.haiku_rejections || []).forEach(r => {
     html += `<div class="reason"><span class="u">@${r.username}</span> — <span class="r">${r.reason}</span></div>`;
   });

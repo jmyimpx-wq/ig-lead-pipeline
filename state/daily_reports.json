@@ -126,5 +126,504 @@
     "candidates_after_keyword_filters": 7,
     "haiku_confident_qualified": 0,
     "haiku_uncertain_escalated_to_sonnet": 0
+  },
+  {
+    "date": "2026-07-13",
+    "timestamp": "2026-07-13T16:13:59.168535Z",
+    "haiku_rejections": [
+      {
+        "username": "memorybox_photo",
+        "reason": "Destination wedding photographer (Mexico-based, phone code 52) is not a retailer/buyer of tableware and home decor; photography services are outside Jimmy Impex's target buyer profile."
+      },
+      {
+        "username": "eliesaabbridal",
+        "reason": "Fashion/apparel bridal brand, not a home decor or tabletop retailer; completely outside Jimmy Impex's product category."
+      },
+      {
+        "username": "sb_photographs",
+        "reason": "Wedding photographer with no home decor retail, design curation, or tabletop buyer business model \u2014 captures events but doesn't source or sell home goods."
+      },
+      {
+        "username": "aleeaartstudio",
+        "reason": "Artist selling original art prints, not a curated home decor/tableware retailer or interior designer who would buy wholesale tabletop pieces."
+      },
+      {
+        "username": "alfaiz_rugs____",
+        "reason": "Competitor manufacturer/exporter based in Bhadohi, India (major rug manufacturing hub); sells rugs (not tableware/home decor aligned with Jimmy Impex offerings), explicitly identifies as 'Manufacturer & Exporter' targeting same overseas markets."
+      },
+      {
+        "username": "newcomb_furniture",
+        "reason": "Mass furniture retailer selling established brands at discount prices, not a curated home decor/tabletop boutique that would stock design-driven artisanal pieces like Jimmy Impex's rattan, brass, and lacquerware."
+      },
+      {
+        "username": "stylesby_patricia",
+        "reason": "Beauty/personal care service provider (hair styling); not a home decor, tableware, or tablescape retailer."
+      },
+      {
+        "username": "iammadamlei",
+        "reason": "Personal lifestyle vlogger with no home decor/tableware retail business substance; website appears to be a personal landing page, not a curated product retailer or designer business."
+      },
+      {
+        "username": "flormariescloset",
+        "reason": "Fashion/apparel boutique (women's clothing), not home decor/tableware retailer; outside Jimmy Impex's product category entirely."
+      },
+      {
+        "username": "weddingnama",
+        "reason": "Wedding photographer, not a home decor/tableware retailer or buyer; based in India (.in domain, +91 country code) so likely a service provider in manufacturing hub rather than end-market buyer."
+      },
+      {
+        "username": "amandatartik",
+        "reason": "Jewelry designer/artisan (Ateli\u00ea de Joias), not home decor/tableware retailer; niche mismatch with Jimmy Impex product focus."
+      },
+      {
+        "username": "gurveenkmakeup",
+        "reason": "Beauty/makeup artist account\u2014beauty/personal services are explicitly out-of-scope; no home decor or tabletop retail business."
+      },
+      {
+        "username": "steenhaus.aromas",
+        "reason": "Fragrance/candle/aromatics business with no tableware, home decor, or tablescape focus -- outside Jimmy Impex's product categories entirely."
+      },
+      {
+        "username": "missbettywhitethefrenchiepup",
+        "reason": "Personal pet lifestyle account with no business substance, e-commerce presence, or home decor/tableware retail activity."
+      },
+      {
+        "username": "rowemediagroup",
+        "reason": "Digital marketing/content creation agency, not a home decor retailer, interior designer, or tableware buyer."
+      },
+      {
+        "username": "schischihome",
+        "reason": "Germany-based (.de domain, +49 country code, Dortmund address) suggests a local/regional retailer in a manufacturing hub region rather than an end-market buyer in Jimmy Impex's primary target geographies (USA, UK, Europe proper, Gulf); would be competing for same Asian suppliers rather than buying from them."
+      },
+      {
+        "username": "oakcreekfarmhouse",
+        "reason": "Primary business is handmade soy candles (not tableware/home decor), and no evidence of being a retailer/buyer of wholesale goods rather than a maker/creator."
+      },
+      {
+        "username": "hairbypratiksha",
+        "reason": "Hair stylist service provider with no home decor, tableware, or retail business relevance; not a qualified buyer for Jimmy Impex products."
+      },
+      {
+        "username": "emaratiweddings",
+        "reason": "Editorial/media magazine account, not a retailer or buyer; no indication of purchasing tableware/decor for resale or client projects."
+      },
+      {
+        "username": "andrea_sebaoun_antonioni",
+        "reason": "Primary business is restaurant ownership/direction; lifestyle curator role lacks evidence of curated home decor retail or tabletop buying authority."
+      },
+      {
+        "username": "goodfeelings_wholesale",
+        "reason": "Jewelry wholesaler, not home decor/tableware retailer; outside Jimmy Impex's product category entirely."
+      },
+      {
+        "username": "boutiquebutterlu",
+        "reason": "Personalized gifts and frames business focused on handmade keepsakes is outside Jimmy Impex's tableware/home decor/tablescape product categories and buyer profile."
+      },
+      {
+        "username": "rattiflora",
+        "reason": "Floral and garden design/landscape services business, not a home decor/tableware retailer or buyer of finished goods for resale."
+      },
+      {
+        "username": "store6554dallas",
+        "reason": "UPS Store franchise (shipping/logistics service) \u2014 not a home decor retailer, designer, or tableware buyer; completely outside target niche."
+      },
+      {
+        "username": "christmasloft",
+        "reason": "Seasonal Christmas collectibles retailer with no alignment to Jimmy Impex's core tableware, home decor, and design-driven aesthetic focus."
+      },
+      {
+        "username": "ms.kamrrr",
+        "reason": "Personal lifestyle account with no business substance, no shop, and generic self-promotional bio unrelated to home decor, tableware, or retail."
+      },
+      {
+        "username": "florida_art_rep",
+        "reason": "Art studio representation is outside Jimmy Impex's tableware/home decor buyer profile; no evidence of curated retail, design specification, or tabletop/tablescape purchasing."
+      },
+      {
+        "username": "kaara.stories",
+        "reason": "Wedding photographer, not a tableware/home decor retailer or interior designer who specs decor for clients."
+      },
+      {
+        "username": "jessica.j.muah",
+        "reason": "Beauty/cosmetics/hair services provider (bridal makeup artist) \u2014 not a home decor/tableware retailer or buyer."
+      },
+      {
+        "username": "steeldesign.lb",
+        "reason": "Metal fabricator based in Lebanon (country code +961) is a competitor manufacturer/supplier, not an end-market buyer for Jimmy Impex's tableware and home decor products."
+      },
+      {
+        "username": "esploraaustralia",
+        "reason": "Based in Australia (destination market \u2713) and sells curated artisan home goods (niche-relevant \u2713), but bio language 'treasures gathered from around the globe' + 'worldwide shipping' + Afterpay suggests this is a small boutique retailer/reseller buying finished goods, not a wholesale buyer sourcing inventory in bulk from manufacturers\u2014wrong side of the supply chain for Jimmy Impex's B2B export model."
+      },
+      {
+        "username": "vertexinc",
+        "reason": "Profile explicitly identifies as 'manufacturer and exporters and home decor supplier' \u2014 a direct competitor/supplier, not an end-market buyer."
+      },
+      {
+        "username": "maison_flaneur",
+        "reason": "Multi-brand aggregator/marketplace (shops 400+ brands) is a distributor/reseller competing for the same suppliers, not an end-market buyer with curated aesthetic and direct sourcing needs."
+      },
+      {
+        "username": "rb_eventtechnology",
+        "reason": "Event technology/AV services provider (audio, lighting, projection, rigging) \u2014 niche is sound/stage production, not home decor or tableware retail."
+      },
+      {
+        "username": "ueventsglobal",
+        "reason": "Event planner based in Dubai (Gulf region) with focus on weddings/concept design and production, but no indication of retail buying or curation of home decor/tableware products for resale\u2014appears to be a service provider, not a product buyer."
+      },
+      {
+        "username": "le43catering",
+        "reason": "Catering and cake business focused on food service, not home decor or tableware retail; not a buyer for Jimmy Impex products."
+      },
+      {
+        "username": "theamandaperna",
+        "reason": "Personal lifestyle/design influencer and TV personality with no evidence of a curated retail business, e-commerce shop, or wholesale buying operation for home decor/tableware."
+      },
+      {
+        "username": "autofocus_me",
+        "reason": "Wedding/portrait photographer and filmmaker are service providers, not retail buyers of tableware/home decor products for resale or client spec."
+      },
+      {
+        "username": "modgyco",
+        "reason": "Modgy is a direct consumer DTC brand (modern design products for daily life), not a wholesale buyer/retailer/designer who would purchase from Jimmy Impex; also no evidence of tableware/home decor focus matching the product line."
+      },
+      {
+        "username": "dhruv.bachan",
+        "reason": "Personal photographer/videographer with no indication of a home decor retail, interior design, or tabletop styling business."
+      },
+      {
+        "username": "millionaire_mentor",
+        "reason": "Personal lifestyle/motivational content account with no home decor, tableware, or retail business\u2014not a qualified buyer."
+      },
+      {
+        "username": "socalbuilders",
+        "reason": "Custom home builders and renovation firms are not buyers of tableware/home decor wholesale goods; they're in a different business (construction/design services, not retail/curation of finished goods for resale)."
+      },
+      {
+        "username": "kmsteamclean",
+        "reason": "K&M Steam Cleaning is a service business (commercial cleaning), not a home decor/tableware retailer or designer\u2014completely outside Jimmy Impex's target buyer market."
+      },
+      {
+        "username": "stepswee",
+        "reason": "Entertainment/events production company (Lebanon +961), not a tableware/home decor retailer or buyer"
+      },
+      {
+        "username": "arxluxurycontent",
+        "reason": "Content creator/photographer account with no retail shop, product sales, or buyer business model\u2014creates event content for clients rather than purchasing tableware/decor inventory."
+      },
+      {
+        "username": "theknottingcompany",
+        "reason": "Carpet and rug fabrication/installation is a different category entirely from tableware and home decor; no alignment with Jimmy Impex's product lines or buyer profile."
+      },
+      {
+        "username": "thatssoandrew_",
+        "reason": "Personal lifestyle/comedy brand with no evidence of curated home decor or tableware retail focus; appears to be apparel/merchandise-driven rather than a furniture/decor buyer."
+      },
+      {
+        "username": "thepreppyplanters",
+        "reason": "Florist/plant designer focused on live florals and hospitality displays, not a tableware/home decor retailer or buyer of manufactured home goods."
+      },
+      {
+        "username": "themadhattressstore",
+        "reason": "Fashion accessories and jewelry seller (headbands, fascinators, jewelry), not a home decor/tableware retailer; wrong category entirely for Jimmy Impex's product lines."
+      },
+      {
+        "username": "livecheermeditate",
+        "reason": "Direct-to-consumer candle and self-care brand (not a tableware/home decor retailer, interior designer, or wholesale buyer), selling finished goods to end consumers rather than buying wholesale inventory."
+      },
+      {
+        "username": "rachelvaught.artist",
+        "reason": "Live event painter offering custom artwork services; not a tableware/home decor retailer or buyer of wholesale goods."
+      },
+      {
+        "username": "nuimonoyacoco",
+        "reason": "Fashion/apparel brand (kimono and bags) focused on personal creative work, not a home decor/tableware retailer or buyer for Jimmy Impex's product category."
+      },
+      {
+        "username": "rumimode.ca",
+        "reason": "Luxury menswear apparel brand, not home decor/tableware retailer; outside Jimmy Impex's product categories entirely."
+      },
+      {
+        "username": "zainabazeez",
+        "reason": "Makeup artist and cosmetics founder\u2014beauty/apparel category, not home decor/tableware retailer; no relevance to Jimmy Impex's product lines."
+      },
+      {
+        "username": "omeinteriors",
+        "reason": "Primary business is window treatments (Hunter Douglas distributor) and interior design services, not tableware/home decor retail or styling; lacks alignment with Jimmy Impex's product categories."
+      },
+      {
+        "username": "shindigs64",
+        "reason": "No bio, no website, no clear business focus visible; generic username and minimal follower count suggest personal/non-serious retail account rather than curated home decor buyer."
+      },
+      {
+        "username": "highriverproperties",
+        "reason": "Custom home builder focused on construction, not a tableware/home decor retailer or designer specifying furnishings for clients."
+      },
+      {
+        "username": "jessdefleur",
+        "reason": "Bangkok-based florist (Thailand manufacturing hub) with phone country code +66 and LINE contact -- likely a local floral service or regional supplier, not an overseas end-market buyer for Jimmy Impex exports."
+      },
+      {
+        "username": "thewentagroup",
+        "reason": "Business service/workspace provider offering training and advice, not a home decor/tableware retailer or buyer."
+      },
+      {
+        "username": "artknacky",
+        "reason": "Artknacky is a ceramic artist/maker (creator of original work), not a retailer or buyer of wholesale tableware and home decor inventory."
+      },
+      {
+        "username": "ana.gorozpe",
+        "reason": "Personal artist/jewelry maker account, not a curated retailer or buyer of tableware/home decor wholesale inventory."
+      },
+      {
+        "username": "fazendoarte.danizigar",
+        "reason": "Brazil-based (country code +55) event/tablescape stylist renting table settings for intimate events\u2014not a retail buyer with inventory purchasing needs or wholesale sourcing operation."
+      },
+      {
+        "username": "radhikaweddiingsndesign",
+        "reason": "India-based wedding planner (+91 country code, Delhi/Chandigarh locations) is a service provider, not a retail buyer or importer of tableware/home decor products for resale."
+      },
+      {
+        "username": "hollyflorencephotography",
+        "reason": "Wedding photographer/filmmaker with no evidence of buying tableware or home decor for resale or styling services; primary business is photography, not retail or interior styling."
+      },
+      {
+        "username": "ggpiccini",
+        "reason": "Personal interior designer account focused on own renovation project, not a curated retail/design business with commercial buyer presence or e-commerce shop."
+      },
+      {
+        "username": "burlesquebrowsandbeauty",
+        "reason": "Beauty/aesthetics service provider (microblading, facials, skincare) with no connection to home decor, tableware, or wholesale buying."
+      },
+      {
+        "username": "gemsbyrukhad",
+        "reason": "Jewelry/diamonds supplier (niche mismatch with tableware/home decor focus) and B2B supplier positioning indicates competitor/manufacturer, not end-market buyer."
+      },
+      {
+        "username": "fernandarojasrd",
+        "reason": "Personal lifestyle/entertainment account (acting, film, TV, modeling) with no business substance or home decor/tableware retail presence."
+      },
+      {
+        "username": "entrelacoshandmade",
+        "reason": "Brazil-based (+55 country code) with 'Atacado e Varejo' (wholesale/retail) positioning suggests a fellow exporter/distributor in a manufacturing hub region rather than an end-market buyer; not a destination market for Jimmy Impex."
+      },
+      {
+        "username": "myra.baginski",
+        "reason": "Real estate advisor, not a home decor/tableware retailer or interior designer speccing for clients\u2014personal lifestyle service, not a wholesale buyer of decor products."
+      },
+      {
+        "username": "chroma.nostaa.designs",
+        "reason": "Artist account focused on wearable art (fashion/apparel), not home decor or tableware retail/design."
+      },
+      {
+        "username": "amf_construction",
+        "reason": "Construction/design-build company, not a tableware/home decor retailer or interior designer speccing decor products for clients."
+      },
+      {
+        "username": "kcjatdesigns",
+        "reason": "Jewelry/watches category is outside Jimmy Impex's tableware and home decor focus; not a relevant buyer segment."
+      },
+      {
+        "username": "darktechnical",
+        "reason": "Darktechnical is a design-technical production/manufacturing company in Turkey (a manufacturing hub), not an end-market buyer or retailer of home decor products."
+      },
+      {
+        "username": "chereeberrypaper",
+        "reason": "Stationery/invitations/paper design business \u2014 not a home decor, tableware, or tablescape retailer that would source Jimmy Impex products."
+      },
+      {
+        "username": "eggersmann_hasselt",
+        "reason": "Interior design/kitchen/bathroom showroom business (B2B design services), not a tableware/home decor retailer or buyer; based in Belgium with no indication of importing home goods or tabletop pieces."
+      },
+      {
+        "username": "maria_carlos_home",
+        "reason": "No evidence of a real business with genuine buying capability; appears to be a personal lifestyle content creator in Angola with minimal followers and no website or e-commerce presence."
+      },
+      {
+        "username": "maddashmixes",
+        "reason": "Food/spice manufacturer selling dried mixes\u2014completely outside Jimmy Impex's tableware and home decor niche; not a buyer for these products."
+      },
+      {
+        "username": "analogsupplyco",
+        "reason": "Design-focused workspace/home goods supplier competing in the same curated objects space; likely a fellow designer/maker/importer rather than a retail buyer for Jimmy Impex's tableware and decor."
+      },
+      {
+        "username": "olar.6ix",
+        "reason": "DJ profile with no home decor/tableware business substance; niche is entertainment, not retail or design."
+      },
+      {
+        "username": "feineshaar",
+        "reason": "Beauty salon with no home decor or tableware business focus; wrong category entirely."
+      },
+      {
+        "username": "vacations",
+        "reason": "Travel agency with no home decor/tableware business relevance; operates in completely different vertical."
+      },
+      {
+        "username": "vbandcodesigns",
+        "reason": "Handmade USA manufacturer/maker brand (not a buyer of wholesale tableware/home decor), despite wholesale contact language."
+      },
+      {
+        "username": "xfresincraft",
+        "reason": "Manufacturer/exporter based in China (Fujian province, +86 country code) selling resin souvenirs wholesale\u2014competitor in the Asian manufacturing hub, not an end-market buyer."
+      },
+      {
+        "username": "unichairs",
+        "reason": "Unichairs is a hospitality furniture manufacturer/supplier (3 generations in industry, self-described international leader in furniture), not a retail buyer of tableware and home decor."
+      },
+      {
+        "username": "inkarim_cake",
+        "reason": "Pastry chef and content creator with no home decor retail business, e-commerce presence, or wholesale buying operation."
+      },
+      {
+        "username": "tracey.skafidas.designs",
+        "reason": "Artist/illustrator selling own designs via Spoonflower and Etsy is a creator, not a wholesale buyer of tableware or home decor products."
+      },
+      {
+        "username": "emily_michelson",
+        "reason": "Professional photographer with no retail/wholesale business model\u2014sells services (photography), not home decor products; not a buyer of tableware or home furnishings."
+      },
+      {
+        "username": "rocknrock.pacific",
+        "reason": "Cabinet & countertop store focused on quartz surfaces with financing offers; not a tableware, home decor, or tablescape retailer, and based in Mexico (outside primary target markets for this exporter)."
+      },
+      {
+        "username": "tree_to_table_ke",
+        "reason": "Kenya-based manufacturer of handcrafted wooden products (competitor in manufacturing/export space, not an overseas buyer market), with no e-commerce presence and product focus (wooden bowls/cutlery) misaligned with Jimmy Impex's tableware/home decor aesthetics."
+      },
+      {
+        "username": "prietoonline",
+        "reason": "Jewelry/fashion business (joias = jewelry), not home decor/tableware; also Brazil-based with no home goods relevance to Jimmy Impex's target markets."
+      },
+      {
+        "username": "retrochimps",
+        "reason": "Bio describes general creative/build services with no evidence of home decor retail, tableware, or curated goods business; appears to be a creative agency or production studio, not a buyer."
+      },
+      {
+        "username": "creative_florist26",
+        "reason": "Pakistan-based (+92 country code) with Udemy instructor bio and YouTube channel link\u2014no legitimate retail/design business substance; likely a competitor sourcing hub or unrelated educational account."
+      },
+      {
+        "username": "almaha_resort",
+        "reason": "Luxury resort hospitality account, not a home decor/tableware buyer or retailer with their own curated shop."
+      },
+      {
+        "username": "pulaskifurnitureco",
+        "reason": "Pulaski Furniture is a large-scale furniture manufacturer/competitor (established 1955, based in US furniture hub High Point, NC), not a boutique tableware/home decor retailer or end-market buyer."
+      },
+      {
+        "username": "mayiosotaluno",
+        "reason": "Wedding photographer focused on photography services, not a tableware/home decor retailer or buyer\u2014misaligned niche despite LA location."
+      },
+      {
+        "username": "jonas.dewinter.antiques",
+        "reason": "Antiques wholesaler/exporter competing in the same wholesale supply chain, not an end-market retailer or designer buyer for home decor pieces."
+      },
+      {
+        "username": "r.eventsuaeparties",
+        "reason": "Event planner/organizer in UAE offering full-service event production (catering, entertainment, furniture rental) \u2014 not a curated tableware/home decor retailer or interior designer speccing decor for clients; focus is logistics/entertainment, not design-driven home goods sourcing."
+      },
+      {
+        "username": "thepillowcompanyofficial",
+        "reason": "Phone country code 91 (India) combined with home decor category suggests manufacturer/exporter competing in same sourcing hub, not an end-market buyer."
+      },
+      {
+        "username": "mairahimi",
+        "reason": "PhD engineering student with no business substance, no retail/design/decor presence, and collaboration contact suggests personal lifestyle account rather than commercial buyer."
+      }
+    ],
+    "sonnet_rejections": [
+      {
+        "username": "nurellecreations",
+        "reason": "Nurelle Creations is a solo artist/maker selling her own original art on apparel, stickers, and totes \u2014 a producer/seller, not a buyer of tableware or home decor wholesale goods."
+      },
+      {
+        "username": "districtmonochrome",
+        "reason": "Website is a password-locked pre-launch fashion/apparel brand ('elevated essentials,' 'Fall 2026 collection'), not a home decor or tableware retailer."
+      },
+      {
+        "username": "metro.interiors",
+        "reason": "Solo interior designer and Feng Shui consultant based in Minneapolis offering personal design sessions and books \u2014 no retail shop, no wholesale buying operation, and no evidence of importing or stocking physical product for resale."
+      },
+      {
+        "username": "torywallerdesign",
+        "reason": "Australia-based interior stylist who sources/specs for local clients rather than operating a retail or importing business that would wholesale tableware at scale, and no evidence of product buying or e-commerce activity."
+      },
+      {
+        "username": "the_artisanandcompany",
+        "reason": "This is a direct-to-consumer retailer selling handcrafted/artisan goods including rattan and home decor, but their product mix (furniture, handbags, hats, leather accessories) and positioning skew lifestyle/fashion rather than tableware/tablescape, making them a poor fit for Jimmy Impex's tableware and home decor wholesale offering."
+      },
+      {
+        "username": "themonogramgirlstx",
+        "reason": "Children's personalized placemat subscription service in Texas focused on monogrammed kids' items, not a home decor/tableware retailer matching Jimmy Impex's ICP."
+      }
+    ],
+    "pushed_leads": [
+      {
+        "username": "hellahuizingaevents",
+        "email": "info@hellahuizinga.com"
+      },
+      {
+        "username": "mfr.endlessdetails",
+        "email": "info@mfrendlessdetails.com"
+      },
+      {
+        "username": "motifloral",
+        "email": "motifloral@gmail.com"
+      },
+      {
+        "username": "dolcevitadesign",
+        "email": "alessa@dolcevitadesign.com"
+      },
+      {
+        "username": "zahrastudio.events",
+        "email": "zahrastudio.events@gmail.com"
+      },
+      {
+        "username": "marvelleeventsandflowers",
+        "email": "info@marvelleevents.com"
+      },
+      {
+        "username": "samanthanicholasevents",
+        "email": "samantha@samanthanicholas.ca"
+      },
+      {
+        "username": "kliudesign",
+        "email": "kliudesignstudio@gmail.com"
+      },
+      {
+        "username": "d2bydigs",
+        "email": "digsandd2@gmail.com"
+      },
+      {
+        "username": "jlkirchdesigns",
+        "email": "jlkirchdesigns@gmail.com"
+      }
+    ],
+    "hashtag_source_discovered": 564,
+    "network_source_discovered": 2311,
+    "profiles_scraped_this_run": 500,
+    "profiles_actually_returned": 498,
+    "debug_sample_scraped_profile": {
+      "username": "poppy.and.lynn",
+      "isBusiness": true,
+      "category": "Wedding Planning Service",
+      "biography": "Amy \u2728 Poppy + Lynn \nHigh End, but NEVER Stuffy\nAs seen in The New York Times, The Cut, The Knot Ones to Watch, Bustle, and more!\nNYC and Beyond",
+      "website": "https://www.thecut.com/article/the-wedding-files-stephen-sophie.html",
+      "bioLinks": [
+        "https://www.thecut.com/article/the-wedding-files-stephen-sophie.html"
+      ]
+    },
+    "no_email_count": 363,
+    "no_website_but_kept": 298,
+    "candidates_after_keyword_filters": 135,
+    "haiku_confident_qualified": 24,
+    "haiku_uncertain_escalated_to_sonnet": 11,
+    "own_smtp_valid": 10,
+    "own_smtp_invalid": 8,
+    "own_smtp_unknown": 11,
+    "snov_fallback_error": "402 Client Error: Payment Required for url: https://api.snov.io/v2/email-verification/start",
+    "total_verified_valid": 10,
+    "pushed_to_snovio": 10
   }
 ]

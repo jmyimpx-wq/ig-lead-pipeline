@@ -1031,9 +1031,10 @@ def main():
             "bioLinks": sample.get("bioLinks"),
         }
 
-    candidates = []  # [{email, username, source_url}] -- profiles with a website, ready for Haiku's full judgment
+    candidates = []  # [{email, username, source_url}] -- any profile with a real, deliverable-looking email
     username_to_profile = {}
-    skipped_no_website = 0
+    no_email_count = 0
+    no_website_but_kept = 0
     non_business_but_kept = 0
     for profile in profiles:
         uname = profile.get("username")
@@ -1045,20 +1046,25 @@ def main():
         if not profile.get("isBusiness", False):
             non_business_but_kept += 1
 
-        # The ONLY free hard filter left: no website/bio link at all -> much
-        # less likely to be a real importing/reselling business, just an
-        # Instagram-only page. This alone prunes the majority of junk for
-        # free, before anything reaches a paid AI call.
+        # Website presence is NO LONGER a hard filter -- plenty of genuine
+        # small businesses run entirely off Instagram/WhatsApp and never set
+        # the "website" link field, even though their bio clearly describes a
+        # real business (sometimes with an email right there). Rejecting them
+        # would lose real leads. Website presence is still passed to Haiku as
+        # a signal it can weigh contextually, just not a hard gate here.
         if not has_real_website(profile):
-            skipped_no_website += 1
-            continue
+            no_website_but_kept += 1
 
-        # Relevance and competitor-exclusion are now judged by Haiku directly
-        # (see ai_judge_lead below) instead of blunt keyword matching -- this
-        # was rejecting genuine leads whose bio wording didn't match the
-        # keyword list, and letting through false positives (e.g. a jewelry
-        # account matching on "boutique"). Haiku's ICP prompt already covers
-        # both dimensions in one holistic judgment.
+        # The one real requirement: we need an actual, deliverable-looking
+        # email to do anything with this lead at all. This is also naturally
+        # free (regex, no API cost) and prunes profiles with no real contact
+        # info before anything reaches a paid AI call.
+        # Relevance and competitor-exclusion are judged by Haiku directly (see
+        # ai_judge_lead below) instead of blunt keyword matching -- this was
+        # rejecting genuine leads whose bio wording didn't match the keyword
+        # list, and letting through false positives (e.g. a jewelry account
+        # matching on "boutique"). Haiku's ICP prompt covers both dimensions
+        # in one holistic judgment, plus geographic competitor reasoning.
         email = extract_email(profile)
         if email and prefilter(email, seen_emails):
             candidates.append(
@@ -1069,18 +1075,22 @@ def main():
                 }
             )
             username_to_profile[uname] = profile
+        else:
+            no_email_count += 1
     print(
-        f"  [debug] skipped {skipped_no_website} no-website profiles "
-        f"({non_business_but_kept} of the considered pool weren't marked 'business' by Instagram but were still evaluated)"
+        f"  [debug] skipped {no_email_count} no-extractable-email profiles "
+        f"({no_website_but_kept} kept despite no website field set, "
+        f"{non_business_but_kept} weren't marked 'business' by Instagram but were still evaluated)"
     )
-    report["skipped_no_website"] = skipped_no_website
+    report["no_email_count"] = no_email_count
+    report["no_website_but_kept"] = no_website_but_kept
     report["candidates_after_keyword_filters"] = len(candidates)
 
-    print(f"{len(candidates)} candidates passed free pre-filter (website + dedupe/regex/MX)")
+    print(f"{len(candidates)} candidates passed free pre-filter (has extractable email + dedupe/regex/MX)")
 
     # AI quality gate -- Haiku judges niche-relevance AND competitor-exclusion
-    # holistically for every website-having candidate (replaces the old blunt
-    # keyword filters). High-confidence verdicts are trusted directly; only
+    # holistically for every candidate (replaces the old blunt keyword
+    # filters). High-confidence verdicts are trusted directly; only
     # "low confidence" (ambiguous bio) cases get escalated to Sonnet for a
     # deeper look at their real website -- this keeps the expensive Sonnet
     # tier small while still catching genuinely unclear cases properly.

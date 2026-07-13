@@ -483,22 +483,26 @@ def crawl_seed_followers():
         user_id = seed_profile["id"]
 
         collected = 0
-        end_cursor = None
+        max_id = None
         try:
             while collected < config.MAX_FOLLOWERS_PER_SEED_PER_RUN:
                 params = {"user_id": user_id}
-                if end_cursor:
-                    params["end_cursor"] = end_cursor
+                if max_id:
+                    params["max_id"] = max_id
+                # v1 endpoint: reqs=1 (standard pricing), up to 100 records/call.
+                # Previously used /gql/user/followers/chunk, which costs reqs=2
+                # (double) per call and only returns 50 records/call -- a real
+                # cost mistake, fixed here.
                 resp = requests.get(
-                    f"{HIKERAPI_BASE}/gql/user/followers/chunk",
+                    f"{HIKERAPI_BASE}/v1/user/followers/chunk",
                     params=params,
                     headers={"x-access-key": HIKERAPI_TOKEN, "accept": "application/json"},
                     timeout=20,
                 )
                 resp.raise_for_status()
                 data = resp.json()
-                chunk = data[0] if isinstance(data, list) and len(data) > 0 else []
-                end_cursor = data[1] if isinstance(data, list) and len(data) > 1 else None
+                chunk = data.get("users", []) if isinstance(data, dict) else []
+                max_id = data.get("next_max_id") if isinstance(data, dict) else None
                 if not chunk:
                     break
                 for follower in chunk:
@@ -506,7 +510,7 @@ def crawl_seed_followers():
                     if uname:
                         usernames_found[uname] = {}
                 collected += len(chunk)
-                if not end_cursor:
+                if not max_id:
                     break
             print(f"  [debug] HikerAPI followers: got {collected} for seed '{seed}'")
         except Exception as e:

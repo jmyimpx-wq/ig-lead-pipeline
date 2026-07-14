@@ -519,6 +519,53 @@ def crawl_seed_followers():
     return usernames_found
 
 
+def crawl_client_following():
+    """Pull the FOLLOWING list of your existing clients (config.CLIENT_SEED_ACCOUNTS)
+    -- a boutique buyer's own following list is a curated set of their peers/
+    inspiration, often genuinely similar businesses. Same cheap HikerAPI infra
+    as crawl_seed_followers, just the following endpoint instead of followers.
+    Returns dict {username: {}} for consistency with the other discovery source."""
+    usernames_found = {}
+    for seed in config.CLIENT_SEED_ACCOUNTS:
+        seed_profile = hikerapi_get_profile(seed)
+        if not seed_profile or not seed_profile.get("id"):
+            print(f"  [debug] couldn't resolve client seed '{seed}' to a user id, skipping")
+            continue
+        user_id = seed_profile["id"]
+
+        collected = 0
+        max_id = None
+        try:
+            while collected < config.MAX_FOLLOWING_PER_CLIENT_SEED_PER_RUN:
+                params = {"user_id": user_id}
+                if max_id:
+                    params["max_id"] = max_id
+                resp = requests.get(
+                    f"{HIKERAPI_BASE}/v1/user/following/chunk",
+                    params=params,
+                    headers={"x-access-key": HIKERAPI_TOKEN, "accept": "application/json"},
+                    timeout=20,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                chunk = data.get("users", []) if isinstance(data, dict) else []
+                max_id = data.get("next_max_id") if isinstance(data, dict) else None
+                if not chunk:
+                    break
+                for followed in chunk:
+                    uname = followed.get("username")
+                    if uname:
+                        usernames_found[uname] = {}
+                collected += len(chunk)
+                if not max_id:
+                    break
+            print(f"  [debug] HikerAPI following: got {collected} for client seed '{seed}'")
+        except Exception as e:
+            print(f"  [debug] HikerAPI following crawl failed for client seed '{seed}': {e}")
+
+    return usernames_found
+
+
 # ---------- step 2: profile / bio scraping ----------
 
 def scrape_profiles(usernames, max_workers=15):
@@ -1006,12 +1053,19 @@ def main():
     network_usernames = set(crawl_seed_followers().keys())
     print(f"Network source: {len(network_usernames)} usernames")
 
-    combined_usernames = hashtag_usernames | network_usernames
+    # Source 3: your existing clients' own following lists -- a high-precision
+    # source since it's a curated peer/inspiration list, not a broad trade-show
+    # audience. See crawl_client_following().
+    client_network_usernames = set(crawl_client_following().keys()) if config.CLIENT_SEED_ACCOUNTS else set()
+    print(f"Client-following source: {len(client_network_usernames)} usernames")
+
+    combined_usernames = hashtag_usernames | network_usernames | client_network_usernames
     new_usernames = list(combined_usernames - seen_usernames)[: config.MAX_PROFILES_PER_RUN]
     print(f"Combined: {len(combined_usernames)} usernames, {len(new_usernames)} new to scrape")
 
     report["hashtag_source_discovered"] = len(hashtag_usernames)
     report["network_source_discovered"] = len(network_usernames)
+    report["client_following_source_discovered"] = len(client_network_usernames)
     report["profiles_scraped_this_run"] = len(new_usernames)
 
     if not new_usernames:

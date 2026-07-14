@@ -155,14 +155,25 @@ in aesthetics like chinoiserie, grandmillennial, and toile.
 QUALIFIED leads look like: boutique home decor / tableware / tablescape retailers,
 interior designers who spec decor for clients, gift shops with a curated home
 aesthetic, small importers/distributors of home goods, wedding/event/floral
-stylists who buy tabletop pieces. Real reference examples of the kind of
-business this is for: Mrs. Alice (mrsalice.com), Enchanted Home
-(enchantedhome.com), Paolo Moschino (paolomoschino.com), WH Hostess
-(whhostess.com), Rail & Stile (therailandstile.com) -- boutique/curated home
-and tabletop retailers and designers, generally with a real e-commerce site or
-active online shop. Because Jimmy Impex is an exporter selling INTO overseas
-markets, genuinely qualified buyers are almost always based in the destination
-markets themselves -- primarily USA, UK, Europe, and the Gulf.
+stylists who buy tabletop pieces. Real reference examples -- your actual
+existing customers -- span this range of specific sub-niches, all qualified:
+Mrs Alice (mrsalice.com, USA -- garden ware & tableware), The Enchanted Home
+(enchantedhome.com, USA -- toile and painted items), WH Hostess (whhostess.com,
+USA -- trays and organizers), Two's Company (USA -- all home decor), Paolo
+Moschino (paolomoschino.com, UK -- luxury themed home decor), Rail & Stile
+(therailandstile.com, USA -- Ming-style lacquered furniture), Patti Porter
+Design (USA -- tablescape), Winston Collection (USA -- fabric + furniture),
+Glenbawn Investments/Heidrun (South Africa -- rattan and lamps), Captain and
+Nel (Holland -- rattan items), Alluring Home, Prudence Home, Sugar Coat Home
+(USA -- general home decor), Birdie Fortecus (USA -- stripe/geometrical
+painted items). The common thread: boutique/curated home and tabletop
+retailers and designers, generally with a real e-commerce site or active
+online shop, in a wide range of specific home-decor sub-niches (not just
+literal "tableware" wording) -- garden ware, painted/toile pieces, trays,
+lacquered furniture, rattan, fabric, tablescape styling, etc. Because Jimmy
+Impex is an exporter selling INTO overseas markets, genuinely qualified buyers
+are almost always based in the destination markets themselves -- primarily
+USA, UK, Europe, South Africa, and the Gulf.
 
 NOT QUALIFIED: other exporters/manufacturers/factories/wholesale suppliers
 (competitors, not buyers), jewelry/fashion/beauty/apparel accounts, personal
@@ -211,6 +222,26 @@ SEED_ACCOUNTS = [
 # not B2B buyers.
 MAX_FOLLOWERS_PER_SEED_PER_RUN = 500  # cost lever for network crawl
 
+# ---------------------------------------------------------------------------
+# Client-following crawl (new discovery source): instead of pulling FOLLOWERS
+# of big trade-show accounts, this pulls WHO YOUR EXISTING CLIENTS FOLLOW on
+# Instagram. A boutique home-decor buyer's own following list is a curated
+# set of their peers/inspiration -- often other genuinely similar boutique
+# businesses, which tend to be a much higher-precision source than a broad
+# trade-show follower list. Uses the same cheap HikerAPI infra, just a
+# different endpoint (following instead of followers) -- no new cost driver.
+# Add your existing clients' Instagram usernames here once known.
+CLIENT_SEED_ACCOUNTS = [
+    "mrsalice",        # Mrs Alice Ltd
+    "enchantedhome",   # The Enchanted Home Inc
+    "whhostess",       # WH Hostesses
+    "paolomoschino",   # Paolo Moschino Design
+    "therailandstile", # Rail and Stile
+    # add more as Instagram handles are confirmed: Two's Company, Glenbawn
+    # Investment/Heidrun, Captain and Nel, Patti Porter Design, Winston
+    # Collection, Alluring Home, Prudence Home, Sugar Coat Home, Birdie Fortecus
+]
+MAX_FOLLOWING_PER_CLIENT_SEED_PER_RUN = 300
 # ---------------------------------------------------------------------------
 # SOURCE 1 support: auto hashtag discovery.
 # When True, the pipeline harvests hashtags used in scraped bios/captions,

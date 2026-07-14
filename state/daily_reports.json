@@ -625,5 +625,1360 @@
     "snov_fallback_error": "402 Client Error: Payment Required for url: https://api.snov.io/v2/email-verification/start",
     "total_verified_valid": 10,
     "pushed_to_snovio": 10
+  },
+  {
+    "date": "2026-07-14",
+    "timestamp": "2026-07-14T05:32:59.483607Z",
+    "haiku_rejections": [
+      {
+        "username": "des_the_foodie_",
+        "reason": "Personal food/restaurant blogger with no home decor, tableware, or retail business presence\u2014not a qualified buyer profile."
+      },
+      {
+        "username": "theflowergirlperth",
+        "reason": "Primary business is floral design/floristry (not tableware or home decor retail), and no evidence of buying tabletop pieces or home goods for resale."
+      },
+      {
+        "username": "bundlezofsmiles",
+        "reason": "Gift box bundler selling primarily on Etsy with no evidence of curated home/tableware/decor aesthetic alignment; appears to be a general gift retailer rather than a design-driven home decor or tablescape specialist."
+      },
+      {
+        "username": "danieletorella_photography",
+        "reason": "Wedding photographer with no evidence of tabletop styling, home decor curation, or retail/design business operations\u2014documents events but doesn't source or sell home goods."
+      },
+      {
+        "username": "thewhitecompany",
+        "reason": "The White Company is a large mass-market retail chain (UK-based, 1M+ followers) selling apparel, home goods, and lifestyle products to consumers, not a boutique curated retailer or designer buyer\u2014a scale and positioning mismatch with Jimmy Impex's target wholesale customer base."
+      },
+      {
+        "username": "sarahnannphotography",
+        "reason": "Destination wedding photographer with no evidence of tableware/home decor buying, curation, or styling business\u2014content creation service, not a buyer."
+      },
+      {
+        "username": "cheyenneartistry",
+        "reason": "Beauty/hair/makeup services business, not a home decor, tableware, or tablescape retailer or designer."
+      },
+      {
+        "username": "harmony_by_lana",
+        "reason": "Event planner based in Dubai (Gulf region, phone code 971) is a service provider, not a retailer/buyer of tabletop inventory; no e-commerce presence or product curation signals."
+      },
+      {
+        "username": "so.wohnen.wir",
+        "reason": "Personal lifestyle/DIY content creator with no business website, e-commerce presence, or evidence of being a curated retailer or designer who specs/sells home decor to clients."
+      },
+      {
+        "username": "alexpoleironwork",
+        "reason": "Hand-forged artisan blacksmith/cutlery maker is a manufacturer/maker, not a retail buyer of tableware and home decor products."
+      },
+      {
+        "username": "avenora.ke",
+        "reason": "Kenya-based (+254 country code) with no website and generic home d\u00e9cor/gifts/beddings bio suggests a local reseller or small retailer in a manufacturing hub region, not a qualified overseas buyer in Jimmy Impex's target markets (USA, UK, Europe, South Africa, Gulf)."
+      },
+      {
+        "username": "lindawest5664",
+        "reason": "Generic Shopify consultant/service provider with no evidence of being a home decor retailer, designer, or buyer; no website, no location data, no niche specificity."
+      },
+      {
+        "username": "sundqvist.se",
+        "reason": "Sundqvist is a distributor/wholesaler of established brands (Global, Riedel, Scanpan, Yaxell, Zassenhaus) \u2014 a competing middleman supplier, not an end-market retailer or designer buyer for Jimmy Impex."
+      },
+      {
+        "username": "brocanteshoponline",
+        "reason": "Antique store and restoration workshop (brocante) focused on French vintage/secondhand goods, not a curated home decor retailer or designer buyer of new manufactured tableware and home decor."
+      },
+      {
+        "username": "crosbycoffeeltd",
+        "reason": "Specialty coffee roaster with physical retail locations; completely unrelated to home decor, tableware, or furniture \u2014 no business relevance to Jimmy Impex product categories."
+      },
+      {
+        "username": "daniloandsharon",
+        "reason": "Wedding photography service, not a home decor/tableware retailer or designer who buys tabletop pieces."
+      },
+      {
+        "username": "halfpennypostage",
+        "reason": "Greeting cards and stationery retailer, not home decor/tableware buyer; positioned as a consumer brand stocked in mass retailers (Indigo, Anthropologie, Barnes & Noble), not a wholesale buyer of manufacturing inputs."
+      },
+      {
+        "username": "momadesignstore",
+        "reason": "MoMA Design Store is a major institutional retailer (museum shop) selling mass-market curator-approved products, not a boutique home decor/tableware buyer in Jimmy Impex's target niche of curated, design-driven specialty retailers."
+      },
+      {
+        "username": "luckyonion",
+        "reason": "Event/wedding design agency focused on invites, branding, and installations\u2014not a retail buyer of tableware or home decor products for resale."
+      },
+      {
+        "username": "samanthapleet",
+        "reason": "Fashion designer of clothing, not home decor or tableware retailer; outside Jimmy Impex's product categories."
+      },
+      {
+        "username": "fondbeauti",
+        "reason": "Kids makeup is beauty/apparel category, not home decor or tableware\u2014completely outside Jimmy Impex's product scope."
+      },
+      {
+        "username": "papereclips",
+        "reason": "Stationery and greeting cards wholesaler\u2014wrong product category entirely, no home decor/tableware focus"
+      },
+      {
+        "username": "ekdesign01",
+        "reason": "Event/party styling service with no clear evidence of curated home decor or tableware retail; generic event design bio lacks the product specificity and e-commerce focus of qualified buyers."
+      },
+      {
+        "username": "indibellstudio",
+        "reason": "India-based manufacturer/exporter of bells (phone code +91, .com domain with Indian branding) selling a single product category, not a curated home decor retailer or design-focused buyer in an overseas destination market."
+      },
+      {
+        "username": "tahoecakesbygrace",
+        "reason": "Bakery/catering business with no home decor, tableware, or furniture relevance to Jimmy Impex's product line."
+      },
+      {
+        "username": "carolynsflowers",
+        "reason": "Floral design/arrangement business (not a home decor or tabletop retailer/wholesaler); sells florals and styling services, not tableware or home decor products."
+      },
+      {
+        "username": "abdullah.fayz.hasan",
+        "reason": "Personal event florist/planner based in Gulf (Dubai, +971), not a retail buyer of tableware/home decor products; niche mismatch despite event styling relevance."
+      },
+      {
+        "username": "jothi.plates",
+        "reason": "India-based (Vellore, +91 phone code) selling varisaithattu plates and return gifts locally via WhatsApp/YouTube \u2014 competitor manufacturer/local wholesaler in source hub, not an overseas end-market retailer."
+      },
+      {
+        "username": "sabrina_soto",
+        "reason": "Personal lifestyle/media brand (TV host, podcast) without evidence of a curated home decor retail business or wholesale buyer operation; 'Sabrina Soto Collection' appears to be personal branded merchandise rather than a qualified wholesale buyer of home decor."
+      },
+      {
+        "username": "canelapartystudio",
+        "reason": "Event/party stylist based in Mexico (outside core target markets USA/UK/Europe/South Africa/Gulf) with no clear e-commerce storefront or tableware/home decor retail business model."
+      },
+      {
+        "username": "riedelpartner_sweden",
+        "reason": "Riedel is a major global glass manufacturer (competitor in manufacturing/supply), not a boutique retailer or end-market buyer; their Swedish partner account is part of their distribution infrastructure, not a qualified wholesale customer."
+      },
+      {
+        "username": "criscionecatering",
+        "reason": "Catering company, not a home decor/tableware retailer or designer\u2014they sell food services, not Jimmy Impex's products."
+      },
+      {
+        "username": "reya.rosette",
+        "reason": "India-based (+91 country code) with apparel/fabric focus ('perky floral prints', 'purest fabrics') \u2014 appears to be a fashion/textiles manufacturer or wholesaler competing in the same Asian export hub, not an end-market retailer buyer for home decor tableware."
+      },
+      {
+        "username": "makeup.sonia",
+        "reason": "Makeup artist (beauty/apparel niche) with no home decor or tableware business substance; not a qualified buyer profile for tableware/home decor wholesale."
+      },
+      {
+        "username": "bocci",
+        "reason": "Bocci is a design and manufacturing studio (competitor/supplier), not an end-market buyer retailer or designer; they produce their own lighting and home goods for wholesale distribution."
+      },
+      {
+        "username": "dearjudestore",
+        "reason": "Children's clothing focus with gifts is outside Jimmy Impex's core home decor/tableware buyer niche; not a curated home/tabletop retailer."
+      },
+      {
+        "username": "seattleweddingshow",
+        "reason": "Event organizer/trade show operator, not a retail buyer or designer of home decor products."
+      },
+      {
+        "username": "couch_magazin",
+        "reason": "Magazine/media community account, not a retailer, designer, or buyer of home decor products."
+      },
+      {
+        "username": "gurukrapa_kakor79",
+        "reason": "India-based general store (kirana + toys + clothes) with no home decor/tableware focus, tiny follower count, and no business website; not a curated retailer or buyer in Jimmy Impex's target niche."
+      },
+      {
+        "username": "mycozyporchandhome",
+        "reason": "Bio is generic lifestyle/design content with no evidence of a real retail business, e-commerce shop, or professional buyer role; linktr.ee redirect suggests personal brand/affiliate, not a curated home decor retailer or designer with genuine wholesale sourcing needs."
+      },
+      {
+        "username": "rowenacoelhoflowers",
+        "reason": "Floral/gift delivery service based in UAE; not a home decor or tableware retailer, and operates in a manufacturing/export hub region suggesting potential competitor or re-exporter rather than end-market buyer."
+      },
+      {
+        "username": "naturart.florystyka",
+        "reason": "Personal lifestyle/art account with no business website, shop infrastructure, or commercial substance; bio focuses on nature inspiration and photography rather than retail/design services."
+      },
+      {
+        "username": "justdutch_usofficial",
+        "reason": "Plush toy/character merchandise (Miffy licensing) is apparel/toys, not home decor or tabletop\u2014outside Jimmy Impex's product categories."
+      },
+      {
+        "username": "janekent_studio",
+        "reason": "Artist-made hand-stitched embroidery gifts (personal creator/maker) misaligned with Jimmy Impex's manufactured tableware/home decor wholesale model; not a retailer or designer buyer of inventory."
+      },
+      {
+        "username": "fergus_and_bonnie_",
+        "reason": "Personal lifestyle blog about dogs and travel with no home decor, tableware, or retail business substance."
+      },
+      {
+        "username": "rahhairstudiotahoe",
+        "reason": "Beauty/hair salon, permanently closed, not a home decor or tableware buyer."
+      },
+      {
+        "username": "book_cafee1",
+        "reason": "Bookstore and book caf\u00e9 in Afghanistan (.af domain) selling books and stationery \u2014 not a home decor, tableware, or tablescape retailer; niche mismatch with Jimmy Impex's product categories."
+      },
+      {
+        "username": "smallbizsocialco",
+        "reason": "Social media consultant/service provider for small business, not a home decor/tableware retailer or buyer."
+      },
+      {
+        "username": "andradarusumakeup",
+        "reason": "Makeup artist and bridal beauty professional \u2014 not a home decor, tableware, or tablescape retailer/buyer; entirely wrong category."
+      },
+      {
+        "username": "markpampling",
+        "reason": "International floral designer and educator focused on flower art/design instruction, not a retail buyer of home decor or tabletop pieces for resale."
+      },
+      {
+        "username": "howellsproducts",
+        "reason": "Soap savers and bathroom/personal care products are outside Jimmy Impex's tableware, home decor, and tablescape niche; not a relevant buyer for rattan, brass, lacquerware, or design-driven table/home pieces."
+      },
+      {
+        "username": "stellavie.hamburg",
+        "reason": "Screen printing and graphic design studio\u2014not a home decor, tableware, or tablescape retailer; niche misalignment with Jimmy Impex's product categories."
+      },
+      {
+        "username": "gardenflowers.ae",
+        "reason": "Fresh flower delivery service (peony/floral focus with 2-hour UAE delivery), not a home decor/tableware retailer or designer\u2014wrong product category entirely."
+      },
+      {
+        "username": "namastay_in",
+        "reason": "Travel/tourism experience business (treks, camping, stays), not a home decor or tableware retailer; geography (.in domain, +91 country code, India-based) indicates manufacturer/exporter hub location, not end-market buyer."
+      },
+      {
+        "username": "annacarolinebakar",
+        "reason": "Digital creator focused on food photography, recipe content, and UGC\u2014personal lifestyle/content creator, not a home decor or tableware retailer or designer with a curated shop."
+      },
+      {
+        "username": "lionservicegroupevents",
+        "reason": "Event production/AV/lighting services company, not a home decor retailer or tabletop buyer\u2014outside Jimmy Impex's target market."
+      },
+      {
+        "username": "tulipano_decor",
+        "reason": "Based in UAE (phone code 971, Dubai address) \u2014 a manufacturing/export hub region; profile presents as creative services (floristry, set design, events styling) rather than a curated retail buyer of tableware/home decor goods."
+      },
+      {
+        "username": "annerobincallig",
+        "reason": "Calligraphy and wedding stationery specialist\u2014not a home decor/tableware retailer or tablescape stylist in Jimmy Impex's target buyer niche."
+      },
+      {
+        "username": "russeinrichtungen",
+        "reason": "Germany-based furniture retailer (+49 country code, .de domain) stocking established European brands (Fermob, Thonet, House Doctor) \u2014 a competitor distributor in the same supply chain as Jimmy Impex's target market, not an end-buyer boutique."
+      },
+      {
+        "username": "northriverhospitality",
+        "reason": "Flooring supplier for hospitality venues is outside Jimmy Impex's tableware, home decor, and rattan product categories; not a curated boutique retailer or designer buyer."
+      },
+      {
+        "username": "allium_interiors",
+        "reason": "New Zealand (.co.nz) is outside Jimmy Impex's target export markets (USA, UK, Europe, South Africa, Gulf); while the luxury homeware positioning is relevant, geography disqualifies this lead."
+      },
+      {
+        "username": "ecorce.flowers",
+        "reason": "Florist/floral designer account focused on contemporary blooms and arrangements, not a home decor or tableware retailer; lacks evidence of buying tabletop pieces or home goods inventory."
+      },
+      {
+        "username": "massimocarpet",
+        "reason": "Carpet/rug manufacturer based in Turkey (manufacturing hub) selling luxury custom-made carpets\u2014competitor manufacturer, not an end-market buyer for Jimmy Impex's tableware and home decor."
+      },
+      {
+        "username": "miffyofficialusa",
+        "reason": "Licensed character brand account (not a home decor retailer/buyer), focused on books, events, and merchandise tie-ins rather than curated tabletop or home decor sourcing."
+      },
+      {
+        "username": "littlesevenhouse",
+        "reason": "Niche focus is toy/blind box/K-pop/anime merchandise and clothing\u2014not home decor, tableware, or tablescape; entirely outside Jimmy Impex's product categories and customer base."
+      },
+      {
+        "username": "brasa_catering",
+        "reason": "Food service/catering business with no home decor, tableware retail, or design curation focus \u2014 not a buyer for tableware/home decor exports."
+      },
+      {
+        "username": "voluspabrand",
+        "reason": "Voluspa is a candle/fragrance brand (not tableware/home decor retailer), and the niche mismatch combined with luxury candle positioning makes this a non-qualified product category for Jimmy Impex's export portfolio."
+      },
+      {
+        "username": "lovepipsticks",
+        "reason": "Sticker subscription club is not a home decor/tableware retailer or designer; niche is unrelated to Jimmy Impex's product categories."
+      },
+      {
+        "username": "stylehmag",
+        "reason": "Magazine/media account, not a retailer, designer, or buyer with purchasing intent for wholesale home decor products."
+      },
+      {
+        "username": "bloomsnbliss.uae",
+        "reason": "Florist specializing in fresh flowers and gifting, not a home decor/tableware/tablescape retailer; also UAE-based suggests potential competitor/reseller rather than end-market buyer in Jimmy Impex's target geographies."
+      },
+      {
+        "username": "willowandben",
+        "reason": "Wedding photographer, not a home decor/tableware retailer, interior designer, or event stylist who buys tabletop pieces for resale or client projects."
+      },
+      {
+        "username": "eimsbude",
+        "reason": "Personal lifestyle/interior design blogger with no evidence of a retail business, e-commerce shop, or wholesale buying operation\u2014bio describes home renovation hobby, not a curated home decor buyer."
+      },
+      {
+        "username": "jordandisney84",
+        "reason": "Health/beauty UCG creator and makeup influencer with no home decor or tabletop retail business substance; niche is unrelated to Jimmy Impex's product categories."
+      },
+      {
+        "username": "romeecompanjen",
+        "reason": "Content creator and UGC collaborator with no e-commerce presence or retail business model\u2014not a wholesale buyer."
+      },
+      {
+        "username": "livingathome_magazin",
+        "reason": "Magazine/media account, not a retail buyer or designer who sources products for resale or client projects."
+      },
+      {
+        "username": "coreciderweddings",
+        "reason": "Wedding venue operator (event space rental), not a tableware/home decor buyer or designer who sources decor for clients."
+      },
+      {
+        "username": "sociallightcolorado",
+        "reason": "Photo booth rental and event services business\u2014not a home decor, tableware, or tablescape retailer or designer; no alignment with Jimmy Impex's product categories."
+      },
+      {
+        "username": "the_hyundai",
+        "reason": "Hyundai Department Store is a mass consumer retailer (department store category), not a boutique home decor/tableware buyer; completely outside the curated retailer niche Jimmy Impex targets."
+      },
+      {
+        "username": "kanellaclub",
+        "reason": "Personal lifestyle blogger ('girly finds & guides', travel diaries) with no evidence of a curated home/tableware retail business or design service."
+      },
+      {
+        "username": "kellydawnmakeup",
+        "reason": "Makeup artist and beauty/cosmetics business \u2014 outside Jimmy Impex's home decor and tableware focus; not a qualified buyer niche."
+      },
+      {
+        "username": "__shybloom__",
+        "reason": "Personal floral designer/arranger for events, not a tabletop retailer or home decor buyer; no evidence of purchasing wholesale inventory for resale."
+      },
+      {
+        "username": "specialuglystore",
+        "reason": "Based in Malaysia (country code 60, .my domain, Sabah address) \u2014 a manufacturing/export hub \u2014 with vague 'quirky finds' positioning suggesting reseller/wholesaler model rather than curated end-market retailer; not a qualified buyer profile."
+      },
+      {
+        "username": "arabianweddingacademy",
+        "reason": "Educational/training academy for event professionals, not a buyer of tableware/home decor inventory for resale or client projects."
+      },
+      {
+        "username": "kristinakaberne",
+        "reason": "Russia-based (+7 country code) florist/decorator with no e-commerce presence\u2014likely a local event stylist, not an overseas boutique buyer in Jimmy Impex's target markets (USA, UK, Europe, South Africa, Gulf)."
+      },
+      {
+        "username": "hooknhearth",
+        "reason": "Personal handmade artisan account (6 followers, no business website, generic bio with personal email) lacks business substance and clear retail/design buyer positioning; appears to be a maker/crafter, not a curated retailer or design business."
+      },
+      {
+        "username": "scottanddanaphotographers",
+        "reason": "Photography service provider, not a home decor/tableware retailer or designer\u2014outside Jimmy Impex's buyer profile entirely."
+      },
+      {
+        "username": "cakesbyginahou",
+        "reason": "Custom cake bakery business, not a home decor/tableware retailer or designer\u2014completely outside Jimmy Impex's target buyer niche."
+      },
+      {
+        "username": "gregorlersch",
+        "reason": "Floral designer and author focused on floral design education/content, not a home decor or tabletop retailer/buyer of finished goods."
+      },
+      {
+        "username": "nswfloralartassociation",
+        "reason": "This is a professional association/membership organization for floral artists, not a retail buyer, designer, or importer of home decor and tableware."
+      },
+      {
+        "username": "ourclapboardhomebythesea",
+        "reason": "Personal lifestyle/garden blogger with no evidence of a curated home decor retail business, e-commerce shop, or wholesale buying practice\u2014'digital creator' category and beachfront lifestyle focus indicate content creation, not buyer qualification."
+      },
+      {
+        "username": "shimmerandstain",
+        "reason": "Stationery, signage, and custom event fabrication are outside Jimmy Impex's tableware/home decor focus; no evidence of curated home goods retail or tabletop buying."
+      },
+      {
+        "username": "edgewoodtahoe",
+        "reason": "Luxury resort operator (hospitality/lodging business), not a home decor/tableware retailer or designer buyer."
+      },
+      {
+        "username": "oliveandjune",
+        "reason": "Health/beauty nail brand with mass retail distribution (Target, Walmart, CVS, etc.) \u2014 not a home decor/tableware/tablescape buyer; completely outside Jimmy Impex's product category and customer niche."
+      },
+      {
+        "username": "penco.official",
+        "reason": "Stationery & supply business with .jp domain is a different product category (not home decor, tableware, or related homeware) and likely a manufacturer/wholesaler, not a retail buyer for Jimmy Impex."
+      },
+      {
+        "username": "sperrytentscolorado",
+        "reason": "Event/tent rental service, not a home decor or tableware retailer/designer who would be a buyer of Jimmy Impex products."
+      },
+      {
+        "username": "independent_street_",
+        "reason": "Independent Street is an artisan market/event organizer and community platform, not a home decor retailer or buyer \u2014 they curate vendor participation rather than source and resell home goods themselves."
+      },
+      {
+        "username": "florere.botanics",
+        "reason": "Floral studio focused on weddings/events/editorials\u2014a service provider, not a retail buyer of tableware/home decor inventory for resale."
+      },
+      {
+        "username": "goodsforthestudy",
+        "reason": "Stationery and writing instruments are outside Jimmy Impex's product portfolio (tableware, home decor, rattan, brass, lacquerware); this is a niche mismatch despite the curated retail positioning."
+      },
+      {
+        "username": "wwinshow",
+        "reason": "This is a womenswear trade show (apparel/fashion), not a home decor or tableware buyer\u2014outside Jimmy Impex's product category entirely."
+      },
+      {
+        "username": "baggu",
+        "reason": "BAGGU is a fashion/accessories brand (bags), not a home decor or tabletop retailer\u2014completely outside Jimmy Impex's product categories."
+      },
+      {
+        "username": "gibbssmithbooks",
+        "reason": "Publisher of books and gift products, not a retailer or designer who buys tableware/home decor inventory for resale or client projects."
+      },
+      {
+        "username": "fondly.floraldesigns",
+        "reason": "Florist/bloom bar rental business\u2014designs fresh flowers for events, not a tableware/home decor retailer or buyer of manufactured home goods."
+      },
+      {
+        "username": "meredithlewis05",
+        "reason": "Personal lifestyle blogger with no evidence of a real retail business, shop, or B2B wholesale operation\u2014'dm to collaborate' suggests influencer/content creation rather than genuine buyer intent."
+      },
+      {
+        "username": "littleletterscreates",
+        "reason": "Signwriter and window illustrator is a custom services business (not a tableware/home decor retailer or buyer), and products sold through a cafe suggest artisanal local goods rather than wholesale home decor sourcing."
+      },
+      {
+        "username": "brose_garden",
+        "reason": "Primary focus is floristry/flower arrangement, not home decor or tableware retail; while they may buy event styling pieces, they're not a curated home goods retailer matching Jimmy Impex's target buyer profile."
+      },
+      {
+        "username": "makeupbyshanabeals",
+        "reason": "Makeup artist and beauty services business; not a home decor, tableware, or tablescape retailer."
+      },
+      {
+        "username": "soo_steph",
+        "reason": "Personal lifestyle blogger with no retail storefront or business infrastructure; LTK link is affiliate/commission-based content monetization, not a curated home decor buyer."
+      },
+      {
+        "username": "klevering_amsterdam",
+        "reason": "Netherlands-based (phone code +31) designer/manufacturer of home statement pieces \u2014 likely a competitor exporter/wholesaler rather than an end-market retailer or buyer."
+      },
+      {
+        "username": "ilborro",
+        "reason": "Hotel/resort with organic winery focus is not a tableware/home decor retailer or designer \u2014 wrong business model entirely."
+      },
+      {
+        "username": "eliteeventsrental",
+        "reason": "Party supply and event rental shop focused on event execution/logistics, not a curated home decor or tabletop retailer who would source design-driven tableware and home decor pieces."
+      },
+      {
+        "username": "intensitybandshouston",
+        "reason": "Bio is a single period with no business substance; website domain suggests a band/music venue, not a home decor retailer."
+      },
+      {
+        "username": "nadinedierl",
+        "reason": "Personal lifestyle blogger (DIY, travel, fashion mix) with no evidence of a curated home decor retail business, e-commerce shop, or professional buyer role\u2014appears to be influencer/content creator, not a qualified wholesale buyer."
+      },
+      {
+        "username": "ms_fine_art_photography",
+        "reason": "Fine art photography is outside Jimmy Impex's tableware/home decor niche, and no evidence of retail or design-buyer business model."
+      },
+      {
+        "username": "granvilleroad",
+        "reason": "Video/photo production service provider, not a home decor or tableware buyer; no evidence of retail, design, or product purchasing business."
+      },
+      {
+        "username": "behindtheveilacademy",
+        "reason": "Education/academy business model doesn't match Jimmy Impex's wholesale buyer profile; they sell floral design courses, not home decor or tabletop goods to buyers."
+      },
+      {
+        "username": "addyathome_",
+        "reason": "Personal lifestyle blogger and writer with no evidence of a retail business, e-commerce shop, or product sales operation\u2014Substack newsletter is content-only, not a qualified buyer."
+      },
+      {
+        "username": "harshali_mehndi_and_flower_cr",
+        "reason": "Mehndi artist and flower jewelry creator serving local wedding clients, not a home decor/tableware retailer or buyer; also India-based (phone code +91, Nagpur location) suggesting local service provider, not an overseas market buyer for Jimmy Impex."
+      },
+      {
+        "username": "geliebte_heimat",
+        "reason": "Personal lifestyle/DIY blog with no e-commerce site, business substance, or retail/wholesale operation evident\u2014not a qualified buyer."
+      },
+      {
+        "username": "chicagocollectivewomens",
+        "reason": "Women's fashion apparel and accessories retailer, not home decor/tableware; niche completely misaligned with Jimmy Impex product categories."
+      },
+      {
+        "username": "bicopapier",
+        "reason": "Gift wrap and stationery retailer; not a home decor, tableware, or tablescape buyer aligned with Jimmy Impex's product categories (rattan, brass, lacquerware, metal decor)."
+      },
+      {
+        "username": "ironhandicrafts",
+        "reason": "Based in Nagpur, India (phone code +91, street address in India) with no website and generic 'handmade products' bio \u2014 strong signals of a fellow Indian manufacturer/exporter, not an end-market buyer in USA/UK/Europe/Gulf."
+      },
+      {
+        "username": "alexwaber",
+        "reason": "Commercial photographer with no evidence of home decor/tableware retail or design business; appears to be a service provider, not a buyer for curated home goods."
+      },
+      {
+        "username": "nyplshop",
+        "reason": "Library gift shop focused on book-related products, not home decor/tableware/tablescape retailer in Jimmy Impex's target aesthetic niches."
+      },
+      {
+        "username": "lesvaques",
+        "reason": "Videography studio focused on fashion/editorial content creation, not a home decor/tableware retailer or designer\u2014no evidence of buying or specifying home goods for resale or client projects."
+      },
+      {
+        "username": "baby_liondogs",
+        "reason": "Personal pet/animal lifestyle account with merchandise tie-in (Bonfire store), not a home decor or tableware retailer or designer."
+      },
+      {
+        "username": "guyfgilchrist",
+        "reason": "Personal artist/cartoonist account with no home decor, tableware, or retail business substance\u2014not a buyer of wholesale decor."
+      },
+      {
+        "username": "theflowervanuk",
+        "reason": "Local garden plant delivery and pop-up nursery retailer\u2014sells living plants, not tableware or home decor; no wholesale or B2B sourcing business model evident."
+      },
+      {
+        "username": "counselling_and_coaching_",
+        "reason": "Counselor/yoga instructor/life coach with no home decor, tableware, or retail business relevance; completely outside Jimmy Impex's buyer profile."
+      },
+      {
+        "username": "dariia_flowers_uae",
+        "reason": "Event/floral stylist based in UAE (Gulf region) who appears to be a service provider (events, weddings, decor execution) rather than a retailer/buyer of wholesale tableware and home decor inventory; no website or evidence of a curated shop stocking tabletop pieces."
+      },
+      {
+        "username": "uvprinting_wardha",
+        "reason": "UV printing services supplier based in India (Wardha, phone code +91) \u2014 a manufacturing/service provider competing in the same Asian hub, not an overseas end-market buyer for tableware and home decor."
+      },
+      {
+        "username": "lovely.linen",
+        "reason": "Mass consumer retailer of basics (linens, towels, bedding) with no curated design aesthetic or tableware/home decor focus; Swedish country code (46) suggests European mass-market positioning rather than boutique buyer profile."
+      },
+      {
+        "username": "manonpaardenkooper",
+        "reason": "Primary business is photography/content creation, not a curated home decor retailer or designer buying tableware/decor for resale or client projects."
+      },
+      {
+        "username": "michellepourroy",
+        "reason": "Floral designer/florist focus with no evidence of tableware, home decor, or tablescape retail business; primary business appears to be event floristry and workshops, not curated home goods buying."
+      },
+      {
+        "username": "diplexer",
+        "reason": "Biography is in Cyrillic (Russian) with only 'Dubai' as location marker, no business substance, website field empty, and 42K followers suggests personal/lifestyle account rather than curated retail or design business."
+      },
+      {
+        "username": "yourstrulybklyn",
+        "reason": "Stationery-focused gift shop with no evidence of home decor, tableware, or tablescape buying; niche mismatch with Jimmy Impex's product categories."
+      },
+      {
+        "username": "splitlevel.home",
+        "reason": "Ambassador/influencer for Westwing (a mass-market home decor retailer), not a curated boutique buyer or designer\u2014represents a corporate brand partnership, not genuine wholesale procurement."
+      },
+      {
+        "username": "kittyloveslove",
+        "reason": "Personal lifestyle/wedding blogger with no evidence of a curated home decor or tabletop retail business; features weddings/elopements content rather than selling home goods or tableware."
+      },
+      {
+        "username": "coppeliacakes",
+        "reason": "Bakery/cake design studio is outside Jimmy Impex's home decor and tableware niche; no relevance to rattan, brass, lacquerware, or design-driven home goods."
+      },
+      {
+        "username": "divisistrings",
+        "reason": "Live music and entertainment services are entirely outside Jimmy Impex's tableware and home decor niche; no retail, sourcing, or product-sales business relevance."
+      },
+      {
+        "username": "visualsbyah",
+        "reason": "Based in Lahore, Pakistan (Asian manufacturing hub) with no website or clear retail presence\u2014likely a local event stylist/service provider or potential competitor sourcer, not an overseas buyer market."
+      },
+      {
+        "username": "pushp_kalakar",
+        "reason": "Phone country code +91 (India) combined with vague bio and Google Drive link instead of real business website suggests hobbyist/personal account rather than established retail buyer with genuine e-commerce presence."
+      },
+      {
+        "username": "lovelykindbeauty",
+        "reason": "Beauty/hairstyling/skincare business \u2014 wrong category entirely, not home decor or tableware."
+      },
+      {
+        "username": "intrecci_difioriedarte",
+        "reason": "Local Italian florist (category: Florist, .it domain, +39 phone code) \u2014 not a home decor/tableware retailer or buyer; florists are service providers, not wholesale buyers of Jimmy Impex's product categories."
+      },
+      {
+        "username": "peopleiveloved",
+        "reason": "Artist account focused on personal art/objects with no evidence of being a curated home decor retailer, interior designer, or tabletop buyer\u2014appears to be a direct-to-consumer artist brand, not a wholesale buyer."
+      },
+      {
+        "username": "boermainstituutflowerschool",
+        "reason": "Floral design school, not a retailer/buyer of tableware or home decor products for resale or client projects."
+      },
+      {
+        "username": "leuchtturm1917usa",
+        "reason": "Leuchtturm1917 is a stationery/notebook manufacturer and brand, not a home decor or tableware retailer\u2014outside Jimmy Impex's product category and buyer profile."
+      },
+      {
+        "username": "alessiominottodesign",
+        "reason": "Artist/flower studio profile indicates a creator/designer rather than a curated home goods retailer or tablescape buyer; no evidence of wholesale purchasing, product retail, or home decor business model."
+      },
+      {
+        "username": "krishnanroyit",
+        "reason": "Manufacturing and export business based in India (.in domain, +91 phone code) \u2014 a competitor manufacturer/exporter, not an end-market buyer; jute rugs/carpets also outside Jimmy Impex's core tableware and home decor aesthetic focus."
+      },
+      {
+        "username": "outofprint",
+        "reason": "Apparel/merchandise retailer (books, tees, socks) with no home decor, tableware, or furniture offerings; not in Jimmy Impex's product categories."
+      },
+      {
+        "username": "eventrentsvailaspen",
+        "reason": "Event rental company (chairs, linens, decor rentals for events) is a competitor channel/service model, not a buyer of wholesale tableware and home decor inventory for resale."
+      },
+      {
+        "username": "galateoricevimenti",
+        "reason": "Event planner/catering business focused on bespoke events, not a curated home decor or tableware retailer\u2014wrong buyer profile for Jimmy Impex's product line."
+      },
+      {
+        "username": "colettesprivatedining",
+        "reason": "Restaurant/catering business, not a tableware/home decor retailer or designer \u2014 they buy services and food, not Jimmy Impex's product categories."
+      },
+      {
+        "username": "carnerosresort",
+        "reason": "Hotel resort operator, not a boutique home decor/tableware retailer or designer\u2014not a wholesale buyer of Jimmy Impex's products."
+      },
+      {
+        "username": "liddierowl",
+        "reason": "Personal craft/DIY creator account with no evidence of a curated home decor or tableware business; 'digital creator' category and generic bio indicate lifestyle content, not a qualified wholesale buyer."
+      },
+      {
+        "username": "visitchesterandcheshire",
+        "reason": "Tourist information center promoting regional attractions and events, not a curated home decor/tableware retailer or designer buyer."
+      },
+      {
+        "username": "katijenningsphoto",
+        "reason": "Wedding photographer is not a tableware/home decor buyer; they document events rather than source or retail home goods."
+      },
+      {
+        "username": "magazin_com",
+        "reason": "Germany-based (country code +49) with self-described 'Produzent' (producer/manufacturer) positioning since 1971 \u2014 appears to be a competitor manufacturer/wholesaler, not an end-market buyer."
+      },
+      {
+        "username": "jeremyxgreen",
+        "reason": "Musician/band category with no home decor, tableware, or retail business relevance; personal lifestyle influencer, not a qualified buyer."
+      },
+      {
+        "username": "mikesdancefloorrentals",
+        "reason": "Dance floor rental business is outside Jimmy Impex's target market of home decor, tableware, and tablescape retailers."
+      },
+      {
+        "username": "riflepaperco",
+        "reason": "Rifle Paper Co. is a large consumer brand and manufacturer of their own branded goods (not a buyer/retailer of third-party wholesale home decor), and at 1.2M followers operates at a scale and business model incompatible with importing from Jimmy Impex."
+      },
+      {
+        "username": "villarizzardi",
+        "reason": "Villa Rizzardi is a historic Italian garden/estate (not a home decor retailer, designer, or tableware buyer), and Italy-based businesses are typically manufacturers/exporters competing in the same hub, not end-market buyers."
+      },
+      {
+        "username": "stichtingkunstboek",
+        "reason": "Stichting Kunstboek is a publisher/book producer (illustrated books since 1992), not a home decor, tableware, or tablescape retailer\u2014misaligned niche and wrong buyer type."
+      },
+      {
+        "username": "australianinteriorlandscapes",
+        "reason": "Artificial plants and trees are outside Jimmy Impex's product range (tableware, home decor, rattan, brass, lacquerware, metal decor); this is a different category of home furnishings supplier."
+      },
+      {
+        "username": "marpeflower",
+        "reason": "Floral designer in Yongin, South Korea (manufacturing hub region) with no e-commerce site or wholesale retail business signals\u2014appears to be a local event/floral stylist, not a curated home decor/tableware buyer."
+      },
+      {
+        "username": "darioricevimenti",
+        "reason": "Catering business focused on weddings and events, not a home decor/tableware retailer or designer\u2014wrong buyer segment despite event focus."
+      },
+      {
+        "username": "siennaglassuk",
+        "reason": "Art glass wholesaler/manufacturer (competitor supplier), not a curated retail buyer in Jimmy Impex's target niches like tableware, home decor, or tablescape styling."
+      },
+      {
+        "username": "alispi.studio",
+        "reason": "Stationery and textile designer focused on weddings/events\u2014outside Jimmy Impex's core tableware, home decor, and rattan/brass/lacquerware product range; no evidence of buying curated home decor or tabletop pieces for resale."
+      },
+      {
+        "username": "djnakag",
+        "reason": "Personal lifestyle/entertainment DJ account with no home decor, tableware, or retail business substance."
+      },
+      {
+        "username": "aspenstitchworks",
+        "reason": "Wedding/event styling focus is on apparel services (tailoring, gown preservation, tux rental, seamstress) not home decor or tabletop retail."
+      },
+      {
+        "username": "theanimalsobservatory",
+        "reason": "Kidswear apparel brand, not home decor/tableware retailer; outside Jimmy Impex's product categories."
+      },
+      {
+        "username": "festivalbandparis",
+        "reason": "Music entertainment agency focused on event entertainment services, not a home decor/tableware retailer or designer."
+      },
+      {
+        "username": "sagaform",
+        "reason": "Sagaform is a Swedish tableware/home goods manufacturer and direct-to-consumer brand, not a curated retailer or buyer \u2014 a competitor manufacturer, not a wholesale buyer."
+      },
+      {
+        "username": "shopseedlings",
+        "reason": "Stationery and seed paper packaging is outside Jimmy Impex's core product categories (tableware, home decor, rattan, brass, lacquerware, metal decor) and customer base focus on tablescape/home aesthetic retailers."
+      },
+      {
+        "username": "eastonfilmco",
+        "reason": "Wedding videography service provider, not a home decor/tableware retailer or buyer."
+      },
+      {
+        "username": "nicoleashleyphoto",
+        "reason": "Wedding and family photographer with no evidence of home decor retail or tabletop styling business."
+      },
+      {
+        "username": "maritzas_flowers",
+        "reason": "Florist/flower arrangement business with no tableware or home decor product focus; not a buyer for tabletop goods or home decor manufacturing."
+      },
+      {
+        "username": "thomas_porzellan",
+        "reason": "Thomas Porzellan is a German porcelain/dinnerware manufacturer (brand) selling direct-to-consumer, not a curated boutique retailer or designer buyer in Jimmy Impex's target markets."
+      },
+      {
+        "username": "stephanie_andypain",
+        "reason": "Floral workshop animator/creator (cr\u00e9atrice florale) in Guadeloupe\u2014a personal service provider, not a tableware/home decor retailer or designer who buys inventory for resale."
+      },
+      {
+        "username": "didonjewellery",
+        "reason": "Jewelry brand (fashion/apparel category), not home decor or tableware retailer; outside Jimmy Impex product scope."
+      },
+      {
+        "username": "katieandcohouston",
+        "reason": "Stationery and gifts retailer with no clear home decor, tableware, or tablescape focus; website appears to be a third-party affiliate link (Refersion) rather than their own e-commerce site, suggesting this may not be a substantive retail business."
+      },
+      {
+        "username": "theblackmancan",
+        "reason": "501(c)3 nonprofit focused on amplifying Black men and boys; no home decor, tableware, or retail business substance \u2014 mission-driven social organization, not a qualified buyer."
+      },
+      {
+        "username": "benmallareentertainment",
+        "reason": "Entertainment/party band service provider, not a home decor or tabletop retailer/designer; no product sourcing or buying function."
+      },
+      {
+        "username": "andtradition",
+        "reason": "An international B Corp brand with 537K followers is a competitor manufacturer/exporter, not an end-market buyer retailer or designer; their scale and 'Danish legacy of craftsmanship' positioning indicates they're a fellow upstream supplier, not a boutique buyer."
+      },
+      {
+        "username": "oxfordpennant",
+        "reason": "Oxford Pennant specializes in custom flags and banners, not home decor, tableware, or tablescape products that align with Jimmy Impex's offering."
+      },
+      {
+        "username": "glammaa40",
+        "reason": "Personal lifestyle account ('Just for fun' category, 'No quiero venderte nada') with no business substance, e-commerce presence, or home decor/tableware retail focus."
+      },
+      {
+        "username": "bossdotty",
+        "reason": "Paper goods and stationery gifts are outside Jimmy Impex's core tableware/home decor product categories; no overlap with rattan, brass, lacquerware, metal decor, or tablescape pieces."
+      },
+      {
+        "username": "flower.thinking",
+        "reason": "Educational/training account for floral designers, not a retailer or buyer of home decor/tabletop products."
+      }
+    ],
+    "sonnet_rejections": [],
+    "pushed_leads": [
+      {
+        "username": "bellevuefloralco",
+        "email": "christina@bellevuefloralco.com"
+      },
+      {
+        "username": "stellarstyleevents_nyc",
+        "email": "jelfe@stellarstyleevents.com"
+      },
+      {
+        "username": "alexanderkentinteriors",
+        "email": "shop@alexanderkentinteriors.com"
+      },
+      {
+        "username": "vanessajaimesfloraldesign",
+        "email": "info@vanessajaimes.com"
+      },
+      {
+        "username": "vincentco.floristry",
+        "email": "vincentco.florals@gmail.com"
+      },
+      {
+        "username": "shopmamasage",
+        "email": "shopmamasage@gmail.com"
+      },
+      {
+        "username": "countmeincasa",
+        "email": "countmeincasa@gmail.com"
+      },
+      {
+        "username": "flowersbyedgar",
+        "email": "edgar@flowersbyedgar.com"
+      },
+      {
+        "username": "roseimaginative",
+        "email": "hello@roseimaginative.com"
+      },
+      {
+        "username": "steadfastsupplydc",
+        "email": "info@steadfastsupplydc.com"
+      },
+      {
+        "username": "callunaevents",
+        "email": "hello@callunaevents.com"
+      },
+      {
+        "username": "jandafloralstudio",
+        "email": "jandafloralstudio@gmail.com"
+      },
+      {
+        "username": "naimakhandesigns",
+        "email": "naimakhandesign@gmail.com"
+      },
+      {
+        "username": "blossomsbylisa",
+        "email": "blossomsbylisa@gmail.com"
+      },
+      {
+        "username": "boxwood.home.interiors",
+        "email": "info@boxwoodhomeinteriors.co.uk"
+      },
+      {
+        "username": "dos_goats_plans",
+        "email": "hello@dosgoatsplans.com"
+      },
+      {
+        "username": "flo_stdio",
+        "email": "flostudio.flower@gmail.com"
+      },
+      {
+        "username": "jennrobirdsevents",
+        "email": "jenn@jennrobirdsevents.com"
+      },
+      {
+        "username": "megkathleen_designs",
+        "email": "megkathleen.designs@gmail.com"
+      },
+      {
+        "username": "luxlavishdecor",
+        "email": "luxlavishdecor@gmail.com"
+      },
+      {
+        "username": "softtimeclt",
+        "email": "softtimehome@gmail.com"
+      }
+    ],
+    "hashtag_source_discovered": 376,
+    "network_source_discovered": 0,
+    "client_following_source_discovered": 0,
+    "profiles_scraped_this_run": 360,
+    "profiles_actually_returned": 360,
+    "debug_sample_scraped_profile": {
+      "username": "shellworldflkeys",
+      "isBusiness": false,
+      "category": "Shopping & retail",
+      "biography": "The Florida Keys premier island lifestyle shopping destination\u2600\ufe0f \n\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\nOpen Daily || 9am-7pm\n97600 Overseas Hwy, Key Largo, FL 33037",
+      "website": "",
+      "bioLinks": []
+    },
+    "pre_ai_rejections": [
+      {
+        "username": "shellworldflkeys",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "lauradrodriguez",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "mottestudioshop",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "havagooden",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "parkerstyle_",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "caughtflowerhanded",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "glowbloggeragency",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "villatascaofficial",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "westwingcom",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "ggomezlaura",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "innvisionhospitalityinc",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "meandmrjonesfrodsham",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "solebich",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "rollbahnstagram",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "merrymama0",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "kinn_collective",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "faire_wholesale",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "lakesidecchouston",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tinafloraeventstyling",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "jubileebydanica",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "twoandcrew",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tilflowers.events",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "amoraeblooms",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "glowbloggervision",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "my.flowers.uae",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "laeliaartisanco",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tina_fey_ohbamboo",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "thewildstemshed",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "oliviabucklandflowers",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "lua.collection__",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "irisandmayflorist",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "theknottednapkinco",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "huar.oom",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "roxiii.b13",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "homegoods",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "visitgreecegr",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tulipinadesign",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "traveler_majid",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "maisonhospitality",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "celebrationseventrentals",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "savethedate.ae",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "lensoflenoxvideography",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "laser.envy.nz",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tlazy7_weddings",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "thebriarstudio",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "megzsmith27",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "fujifilmx_ca",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "heavenly_cakes1",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "glowbloggeroption",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "dailymorningstars",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "sproutzsupermarket",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "italianstyleweddings",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "meetinghousedesigns",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "abdelghani_mosa",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "criatividadesdadilenematos",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "rose.inkandpaper",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "nizmez.florez",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "glasshousemn",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "thrownpotteryuk",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "fleurspaceofficial",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "flore.moments.hmo",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "glowbloggervibes",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "_republichome_",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "obsession__online",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "cesborbe",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "ronizaitman",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "fnb365.reality",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "maxwelldesign.studio",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "mellowlifestyleshop",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "u.fl.o.london",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "floralflirtations",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "mewar_gift_homedecor_toys",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "calaisio_inc",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "direct_floral_wholesale",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "hygge_floral_design",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "theinventoryhomedecor",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "joi_de_vie_",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "masaalevents",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "kath__cooke",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "km19atelier",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "lilyrosyflower",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "amarah_decor",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "bellearoma.brand",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "tremlin.shop",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "allthinkicy",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "thehomedecorstoreuk",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "lainetrees",
+        "reason": "duplicate email or failed format/MX check"
+      },
+      {
+        "username": "ak_trends_hubb",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "bbjlatavola",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "dorisisaplace",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "rmplansweddings",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "nyssa_bloom_modeling",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "flowersofthemoment",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "elysianandbloom",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "casario_designs",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "saar.objects",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "inessawaksman",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "visitfrodsham",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "bouguessa",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "fieldnotesbrand",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "neshnina2002",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "petalparadiseluxurypicnic",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "nypl",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "curatedexperiences_eventdecor",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "maisonsierralb",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "rinconesdeconchuca",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "yamada_kana_",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "17v28.app",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "candelgifts",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "hb_nest",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "moodslvt",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "indigo.violet.floral",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "yuanguang.industrial",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "stylemepretty",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "iuliatalvan",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "wildflowerdsm",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "malung_gaming",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "willos.workshop",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "yalin7018",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "grace.and_me",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "blossomhausldn",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "thepaintedposyco",
+        "reason": "no extractable email in bio/contact fields"
+      }
+    ],
+    "no_email_count": 122,
+    "no_website_but_kept": 82,
+    "candidates_after_keyword_filters": 238,
+    "haiku_confident_qualified": 48,
+    "haiku_uncertain_escalated_to_sonnet": 3,
+    "own_smtp_valid": 21,
+    "own_smtp_invalid": 8,
+    "own_smtp_unknown": 22,
+    "snov_fallback_error": "402 Client Error: Payment Required for url: https://api.snov.io/v2/email-verification/start",
+    "total_verified_valid": 21,
+    "pushed_to_snovio": 21
   }
 ]

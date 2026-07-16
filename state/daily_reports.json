@@ -3498,5 +3498,47 @@
     "snov_fallback_error": "402 Client Error: Payment Required for url: https://api.snov.io/v2/email-verification/start",
     "total_verified_valid": 34,
     "pushed_to_snovio": 34
+  },
+  {
+    "date": "2026-07-16",
+    "timestamp": "2026-07-16T05:42:39.369884Z",
+    "haiku_rejections": [
+      {
+        "username": "rawflowerskitchener",
+        "reason": "Pure florist shop with no evidence of home decor, tableware, or tablescape styling retail; not a buyer of Jimmy Impex's product categories."
+      }
+    ],
+    "sonnet_rejections": [],
+    "pushed_leads": [],
+    "hashtag_source_discovered": 448,
+    "network_source_discovered": 0,
+    "client_following_source_discovered": 0,
+    "profiles_scraped_this_run": 351,
+    "profiles_actually_returned": 3,
+    "debug_sample_scraped_profile": {
+      "username": "design.with.isla",
+      "isBusiness": false,
+      "category": "",
+      "biography": "Since everyone keeps asking about the app I use. RenoMuse in the App Store \ud83d\udc47",
+      "website": "https://go.renomuse.com/isla-ig",
+      "bioLinks": [
+        "https://go.renomuse.com/isla-ig"
+      ]
+    },
+    "pre_ai_rejections": [
+      {
+        "username": "design.with.isla",
+        "reason": "no extractable email in bio/contact fields"
+      },
+      {
+        "username": "ajuliacalais",
+        "reason": "no extractable email in bio/contact fields"
+      }
+    ],
+    "no_email_count": 2,
+    "no_website_but_kept": 1,
+    "candidates_after_keyword_filters": 1,
+    "haiku_confident_qualified": 0,
+    "haiku_uncertain_escalated_to_sonnet": 0
   }
 ]
